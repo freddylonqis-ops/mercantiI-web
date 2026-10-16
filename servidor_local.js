@@ -426,9 +426,13 @@ function send(res, code, body, headers, isHead) {
   }, headers || {});
   let payload = null;
   if (!isHead && body !== undefined && body !== null) {
-    payload = typeof body === 'string' ? body : JSON.stringify(body);
-    h['Content-Type'] = h['Content-Type'] || 'application/json; charset=utf-8';
-    h['Content-Length'] = Buffer.byteLength(payload);
+    if (Buffer.isBuffer(body) || typeof body === 'string') {
+      payload = body;
+    } else {
+      payload = JSON.stringify(body);
+      h['Content-Type'] = h['Content-Type'] || 'application/json; charset=utf-8';
+    }
+    h['Content-Length'] = Buffer.isBuffer(payload) ? payload.length : Buffer.byteLength(payload);
   } else if (!isHead && (body === null)) {
     payload = 'null';
     h['Content-Type'] = h['Content-Type'] || 'application/json; charset=utf-8';
