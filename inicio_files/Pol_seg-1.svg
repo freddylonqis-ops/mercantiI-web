@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#009fda"/>
+      <stop offset="1" stop-color="#004e9b"/>
+    </linearGradient>
+  </defs>
+  <g id="Pol_seg-1" transform="translate(-684 -289)">
+    <rect id="Fondo" width="24" height="24" transform="translate(684 289)" fill="none"/>
+    <path id="Hoja" d="M1052,1259h-14a2,2,0,0,1-2-2v-18a2,2,0,0,1,2-2h14a2,2,0,0,1,2,2v18A2,2,0,0,1,1052,1259Zm-13-20a1,1,0,0,0-1,1v16a1,1,0,0,0,1,1h12a1,1,0,0,0,1-1v-16a1,1,0,0,0-1-1Z" transform="translate(-349 -947)" fill="url(#linear-gradient)"/>
+    <path id="Candado" d="M1037,1244a1,1,0,0,1-1-1v-1a1,1,0,0,1,1-1v-1a3,3,0,1,1,6,0v1h0a1,1,0,0,1,1,1v1a1,1,0,0,1-1,1Zm4-3v-1a1,1,0,0,0-2,0v1Z" transform="translate(-344 -943)" fill="url(#linear-gradient)"/>
+    <g id="Texto">
+      <rect id="Rectángulo_1178" data-name="Rectángulo 1178" width="10" height="2" rx="1" transform="translate(691 303)" fill="url(#linear-gradient)"/>
+      <rect id="Rectángulo_1180" data-name="Rectángulo 1180" width="10" height="2" rx="1" transform="translate(691 306)" fill="url(#linear-gradient)"/>
+    </g>
+  </g>
+</svg>

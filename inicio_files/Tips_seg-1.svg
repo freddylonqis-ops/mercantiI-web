@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#009fda"/>
+      <stop offset="1" stop-color="#004e9b"/>
+    </linearGradient>
+  </defs>
+  <g id="Tips_seg-1" transform="translate(-690 -158)">
+    <rect id="Fondo" width="24" height="24" transform="translate(690 158)" fill="none"/>
+    <path id="Escudo" d="M-1046.3,60.353l-1.172-.486a11.912,11.912,0,0,1-7.5-10.908V43.209a.411.411,0,0,1,.225-.361l8.448-4.4a.451.451,0,0,1,.411,0l8.688,4.4a.412.412,0,0,1,.229.367v5.639a11.9,11.9,0,0,1-7.657,10.962l-1.321.543a.455.455,0,0,1-.172.035.448.448,0,0,1-.172-.041Zm.322-1.558.918-.383h0a10.334,10.334,0,0,0,6.537-9.525V43.85l-7.454-3.85Z" transform="translate(1747.97 120.606)" fill="url(#linear-gradient)"/>
+  </g>
+</svg>

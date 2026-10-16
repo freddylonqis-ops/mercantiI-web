@@ -1,0 +1,15 @@
+{
+  "name": "mercantil-antibot",
+  "version": "2.0.0",
+  "description": "Servidor Mercantil con base de datos integrada y filtro anti-bots",
+  "main": "servidor_local.js",
+  "scripts": {
+    "start": "node servidor_local.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

